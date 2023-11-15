@@ -6,13 +6,15 @@ const findAllService = () => UserModel.find();
 
 const findByIdService = (id) => UserModel.findById(id);
 
-const updateService = (id, name, email, adress, coordinates) =>
+const updateService = (id, name, email, address, coordinates) =>
   UserModel.findOneAndUpdate(
-    {
-      _id: id,
-    },
-    { name, email, adress, coordinates }
-  );
+    { _id: id },
+    { name, email, address, coordinates }
+  ).catch((error) => {
+    console.error("Erro no serviço de atualização:", error);
+  });
+
+const deleteByIdService = (userId) => UserModel.deleteOne(userId);
 
 export default {
   createService,

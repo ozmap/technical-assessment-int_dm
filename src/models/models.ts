@@ -18,19 +18,19 @@ class Base extends TimeStamps {
   _id: string;
 }
 
-@pre<User>("save", async function (next) {
-  const region = this as Omit<any, keyof User> & User;
+// @pre<User>("save", async function (next) {
+//   const region = this as Omit<any, keyof User> & User;
 
-  if (region.isModified("coordinates")) {
-    region.address = await lib.getAddressFromCoordinates(region.coordinates);
-  } else if (region.isModified("address")) {
-    const { lat, lng } = await lib.getCoordinatesFromAddress(region.address);
+//   if (region.isModified("coordinates")) {
+//     region.address = await lib.getAddressFromCoordinates(region.coordinates);
+//   } else if (region.isModified("address")) {
+//     const { lat, lng } = await lib.getCoordinatesFromAddress(region.address);
+//     region.coordinates = [lng, lat];
+//   }
 
-    region.coordinates = [lng, lat];
-  }
+//   next();
+// })
 
-  next();
-})
 export class User extends Base {
   @Prop({ required: true })
   name!: string;
@@ -38,13 +38,13 @@ export class User extends Base {
   @Prop({ required: true })
   email!: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   address: string;
 
-  @Prop({ required: true, type: () => [Number] })
+  @Prop({ required: false, type: () => [Number] })
   coordinates: [number, number];
 
-  @Prop({ required: true, default: [], ref: () => Region, type: () => String })
+  @Prop({ required: false, default: [], ref: () => Region, type: () => String })
   regions: Ref<Region>[];
 }
 
