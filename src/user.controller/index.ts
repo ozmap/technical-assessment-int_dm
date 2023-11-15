@@ -11,7 +11,7 @@ const STATUS = {
   DEFAULT_ERROR: 418,
 };
 
-interface CreateRequestBody {
+export interface CreateRequestBody {
   name: string;
   email: string;
   address?: string;
@@ -24,31 +24,48 @@ const create = async (req, res) => {
     const { name, email, address, coordinates, regions }: CreateRequestBody =
       req.body;
 
-    if (!name || !email || (!address && !coordinates)) {
+    if (!name || !email) {
       res.status(STATUS.BAD_REQUEST).send({
-        message: "Preencha os campos corretamente para efetuar o cadastro",
+        message:
+          "Preencha os campos : Nome e E-mail corretamente, para efetuar o cadastro",
+      });
+      return;
+    }
+
+    const user = await UserModel.findOne({ email: email }).lean();
+    if (user) {
+      res.status(STATUS.BAD_REQUEST).send({
+        message: "Usuário com e-mail já cadastrado",
+      });
+      return;
+    }
+
+    if ((coordinates && !address) || (!coordinates && address)) {
+      const user = await userService.createService(req.body);
+
+      if (!user) {
+        return res
+          .status(STATUS.NOT_FOUND)
+          .send({ message: "Erro ao criar usuário" });
+      }
+
+      res.status(STATUS.CREATED).send({
+        menssage: "Usuário criado com sucesso!",
+        user: {
+          id: user._id,
+          name,
+          email,
+          address,
+          coordinates,
+          regions,
+        },
+      });
+    } else {
+      res.status(STATUS.BAD_REQUEST).send({
+        message:
+          "Preencha apenas um dos campos: Coordenadas ou Endereço, para efetuar o cadastro",
       });
     }
-
-    const user = await userService.createService(req.body);
-
-    if (!user) {
-      return res
-        .status(STATUS.NOT_FOUND)
-        .send({ message: "Erro ao criar usuário" });
-    }
-
-    res.status(STATUS.CREATED).send({
-      menssage: "Usuário criado com sucesso!",
-      user: {
-        id: user._id,
-        name,
-        email,
-        address,
-        coordinates,
-        regions,
-      },
-    });
   } catch (error) {
     res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message });
   }
@@ -136,4 +153,10 @@ const deleteById = async (req, res) => {
   }
 };
 
-export default { create, findAll, findById, update, deleteById };
+export default {
+  create,
+  findAll,
+  findById,
+  update,
+  deleteById,
+};

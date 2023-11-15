@@ -1,12 +1,19 @@
 import { UserModel } from "../models/models";
+import { CreateRequestBody } from "../user.controller/index";
 
-const createService = (body) => UserModel.create(body);
+const createService = (body: CreateRequestBody) => UserModel.create(body);
 
 const findAllService = () => UserModel.find();
 
-const findByIdService = (id) => UserModel.findById(id);
+const findByIdService = (id: string) => UserModel.findById(id);
 
-const updateService = (id, name, email, address, coordinates) =>
+const updateService = (
+  id: string,
+  name: string,
+  email: string,
+  address: string,
+  coordinates: [number, number]
+) =>
   UserModel.findOneAndUpdate(
     { _id: id },
     { name, email, address, coordinates }
@@ -21,4 +28,5 @@ export default {
   findAllService,
   findByIdService,
   updateService,
+  deleteByIdService,
 };
