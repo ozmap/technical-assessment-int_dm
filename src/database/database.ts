@@ -10,15 +10,3 @@ const init = () => {
 };
 
 export default init;
-
-// {import mongoose from "mongoose";
-// const env = {
-//   MONGO_URI:
-//     "mongodb+srv://admin:<password>@cluster0.7mn8fb9.mongodb.net/?retryWrites=true&w=majority",
-// };
-
-// const init = async function () {
-//   await mongoose.connect(env.MONGO_URI);
-// };
-
-// export default init()};

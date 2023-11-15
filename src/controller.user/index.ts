@@ -1,7 +1,7 @@
 import { UserModel } from "../models/models";
-import userService from "../user.service";
+import userService from "../service.user";
 
-const STATUS = {
+export const STATUS = {
   OK: 200,
   CREATED: 201,
   UPDATED: 201,

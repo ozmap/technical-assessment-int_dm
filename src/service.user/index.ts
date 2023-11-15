@@ -1,5 +1,5 @@
 import { UserModel } from "../models/models";
-import { CreateRequestBody } from "../user.controller/index";
+import { CreateRequestBody } from "../controller.user/index";
 
 const createService = (body: CreateRequestBody) => UserModel.create(body);
 
