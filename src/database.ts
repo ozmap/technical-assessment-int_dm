@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
-const env = {
-  MONGO_URI: 'mongodb://root:example@127.0.0.1:27021/oz-tech-test?authSource=admin',
-};
+const MONGODB_URI = process.env.MONGODB_URI;
 
-const init = async function() {
-  await mongoose.connect(env.MONGO_URI);
+const init = async function () {
+  console.log('Conectando ao banco');
+  await mongoose.connect(MONGODB_URI);
+  console.log('Conectado ao banco');
 };
 
 export default init();

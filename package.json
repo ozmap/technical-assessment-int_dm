@@ -2,9 +2,10 @@
   "name": "oztest",
   "version": "0.0.1",
   "description": "DevOZ - Tech test",
-  "main": "index.js",
+  "main": "server.ts",
   "scripts": {
-    "dev": "nodemon index.ts",
+    "start": "ts-node src/server.ts",
+    "dev": "nodemon src/server.ts",
     "test": "mocha --require ts-node/register ./src/**/*.spec.ts --exit"
   },
   "author": "",
