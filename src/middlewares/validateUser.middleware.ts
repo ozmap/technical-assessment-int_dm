@@ -1,34 +1,39 @@
 import { NextFunction, Request, Response } from 'express';
 import customError from '../errors/error';
 import { UserRequestBody } from '../types';
-
-const validateEmail = (email: string) => {
-  const expression: RegExp = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-
-  return expression.test(email);
-};
+import { userSchema } from './joi.schemas';
 
 const validateUser = (req: Request, _res: Response, next: NextFunction) => {
   try {
     const user: UserRequestBody = req.body;
 
-    if (!user.address) {
-      user.address = ' ';
-    }
+    const { error } = userSchema.validate(user);
 
-    if (!validateEmail(user.email)) {
+    if (error) {
+      console.log(error);
       throw customError({
         name: 'BAD_REQUEST',
         statusCode: 400,
-        message: 'Formato de email inválido',
+        message: error.message,
       });
+    }
+
+    if (user.address && user.coordinates) {
+      throw customError({
+        name: 'BAD_REQUEST',
+        statusCode: 400,
+        message: 'Passa apenas o endereço ou as coordenadas',
+      });
+    }
+
+    if (!user.address) {
+      user.address = ' ';
     }
 
     const formattedAddress = user.address.split(' ').join('+');
 
     user.address = formattedAddress;
 
-    console.log(user.address);
     next();
   } catch (error) {
     next(error);
