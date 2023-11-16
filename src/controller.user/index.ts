@@ -21,27 +21,36 @@ export interface CreateRequestBody {
 
 const create = async (req, res) => {
   try {
-    const { name, email, address, coordinates, regions }: CreateRequestBody =
-      req.body;
+    const { name, email, address, regions }: CreateRequestBody = req.body;
+    const userCoordinates = req.coordinates;
+
+    console.log("valor de coordinates apos middleware", userCoordinates);
 
     if (!name || !email) {
-      res.status(STATUS.BAD_REQUEST).send({
+      return res.status(STATUS.BAD_REQUEST).send({
         message:
           "Preencha os campos : Nome e E-mail corretamente, para efetuar o cadastro",
       });
-      return;
     }
 
-    const user = await UserModel.findOne({ email: email }).lean();
-    if (user) {
-      res.status(STATUS.BAD_REQUEST).send({
+    const existingUser = await UserModel.findOne({ email }).lean();
+    if (existingUser) {
+      return res.status(STATUS.BAD_REQUEST).send({
         message: "Usuário com e-mail já cadastrado",
       });
-      return;
     }
 
-    if ((coordinates && !address) || (!coordinates && address)) {
-      const user = await userService.createService(req.body);
+    if (
+      (userCoordinates != "" && !address) ||
+      (!userCoordinates && address != "")
+    ) {
+      const user = await userService.createService({
+        name,
+        email,
+        address,
+        coordinates: userCoordinates,
+        //regions: req.regions,
+      });
 
       if (!user) {
         return res
@@ -49,25 +58,27 @@ const create = async (req, res) => {
           .send({ message: "Erro ao criar usuário" });
       }
 
-      res.status(STATUS.CREATED).send({
+      return res.status(STATUS.CREATED).send({
         menssage: "Usuário criado com sucesso!",
         user: {
           id: user._id,
           name,
           email,
           address,
-          coordinates,
-          regions,
+          coordinates: user.coordinates,
+          // regions: user.regions,
         },
       });
     } else {
-      res.status(STATUS.BAD_REQUEST).send({
+      return res.status(STATUS.BAD_REQUEST).send({
         message:
           "Preencha apenas um dos campos: Coordenadas ou Endereço, para efetuar o cadastro",
       });
     }
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message });
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: error.message });
   }
 };
 

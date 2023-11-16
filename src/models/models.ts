@@ -44,17 +44,17 @@ export class User extends Base {
   @Prop({ required: false, type: () => [Number] })
   coordinates: [number, number];
 
-  // @Prop({ required: false, default: [], ref: () => Region, type: () => String })
-  // regions: Ref<Region>[];
+  //   @Prop({ required: false, default: [], ref: () => Region, type: () => String })
+  //   regions: Ref<Region>[];
+  //
 }
 
-// @pre<Region>("save", async function (next) {
-//   const region = this as Omit<any, keyof Region> & Region;
+//  @pre<Region>("save", async function (next) {
+//    const region = this as Omit<any, keyof Region> & Region;
 
 //   if (!region._id) {
 //     region._id = new ObjectId().toString();
 //   }
-
 //   if (region.isNew) {
 //     const user = await UserModel.findOne({ _id: region.user });
 //     user.regions.push(region._id);
@@ -75,5 +75,5 @@ export class User extends Base {
 //   user: Ref<User>;
 // }
 
-//export const RegionModel = getModelForClass(Region);
+// export const RegionModel = getModelForClass(Region);
 export const UserModel = getModelForClass(User);
