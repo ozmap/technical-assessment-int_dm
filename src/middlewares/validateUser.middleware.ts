@@ -18,14 +18,6 @@ const validateUser = (req: Request, _res: Response, next: NextFunction) => {
       });
     }
 
-    if (user.address && user.coordinates) {
-      throw customError({
-        name: 'BAD_REQUEST',
-        statusCode: 400,
-        message: 'Passa apenas o endereço ou as coordenadas',
-      });
-    }
-
     if (!user.address) {
       user.address = ' ';
     }
