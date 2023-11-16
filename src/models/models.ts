@@ -1,21 +1,17 @@
-import "reflect-metadata";
+import 'reflect-metadata'
 
-import * as mongoose from "mongoose";
-import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
-import {
-  pre,
-  getModelForClass,
-  Prop,
-  Ref,
-  modelOptions,
-} from "@typegoose/typegoose";
-import lib from "../lib";
+import * as mongoose from 'mongoose'
+import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses'
+import { getModelForClass, Prop } from '@typegoose/typegoose'
+//import { pre, getModelForClass, Prop, Ref, modelOptions } from '@typegoose/typegoose'
 
-import ObjectId = mongoose.Types.ObjectId;
+//import lib from '../lib'
+
+import ObjectId = mongoose.Types.ObjectId
 
 class Base extends TimeStamps {
   @Prop({ required: true, default: () => new ObjectId().toString() })
-  _id: string;
+  _id: string
 }
 
 // @pre<User>("save", async function (next) {
@@ -33,16 +29,16 @@ class Base extends TimeStamps {
 
 export class User extends Base {
   @Prop({ required: true })
-  name!: string;
+  name!: string
 
   @Prop({ required: true, unique: true })
-  email!: string;
+  email!: string
 
   @Prop({ required: false })
-  address: string;
+  address: string
 
   @Prop({ required: false, type: () => [Number] })
-  coordinates: [number, number];
+  coordinates: [number, number]
 
   //   @Prop({ required: false, default: [], ref: () => Region, type: () => String })
   //   regions: Ref<Region>[];
@@ -76,4 +72,4 @@ export class User extends Base {
 // }
 
 // export const RegionModel = getModelForClass(Region);
-export const UserModel = getModelForClass(User);
+export const UserModel = getModelForClass(User)

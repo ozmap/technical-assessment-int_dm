@@ -18,6 +18,7 @@ Em um mundo conectado e globalizado, a geolocalização se torna cada vez mais e
 ## 🔍 **Funcionalidades Esperadas**
 
 ### Usuários
+
 - **CRUD** completo para usuários.
 - Cada usuário deve ter nome, email, endereço e coordenadas.
 - Na criação, o usuário pode fornecer endereço ou coordenadas. Haverá erro caso forneça ambos ou nenhum.
@@ -25,15 +26,18 @@ Em um mundo conectado e globalizado, a geolocalização se torna cada vez mais e
 - Atualização de endereço ou coordenadas deve seguir a mesma lógica.
 
 ### Regiões
+
 - **CRUD** completo para regiões.
 - Cada região tem um nome, coordenadas e um usuário que será o dono da região.
 - Listar regiões contendo um ponto específico.
 - Listar regiões a uma certa distância de um ponto, com opção de filtrar regiões não pertencentes ao usuário que fez a requisição.
 
 ### Autenticação
+
 - Autenticação não é necessária.
 
 ### Testes
+
 - Unitários e de integração.
 
 ## 🌟 **Diferenciais**
