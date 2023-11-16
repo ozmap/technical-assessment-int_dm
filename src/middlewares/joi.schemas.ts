@@ -10,5 +10,5 @@ export const userSchema = Joi.object({
   .messages({
     'any.required': 'É necessário o campo {{#label}}',
     'string.email': 'Formato de email inválido',
-    'object.oxor': 'Informe apenas address ou coordinates',
+    'object.oxor': 'Informe apenas endereço ou coordenadas',
   });
