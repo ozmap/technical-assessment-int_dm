@@ -32,7 +32,7 @@ const getUserById = async (id: string) => {
 };
 
 const updateUserById = async (id: string, update: UserRequestBody) => {
-  const user = await UserModel.findByIdAndUpdate({ _id: id }, { ...update });
+  const user = await UserModel.findOne({ _id: id });
 
   if (!user) {
     throw customError({
@@ -41,6 +41,18 @@ const updateUserById = async (id: string, update: UserRequestBody) => {
       message: `O id ${id} é inválido`,
     });
   }
+
+  user.name = update.name;
+  user.email = update.email;
+
+  if (update.address) {
+    user.address = update.address;
+  }
+  if (update.coordinates) {
+    user.coordinates = update.coordinates;
+  }
+
+  await user.save();
 
   return { message: 'Usuario atualizado com sucesso' };
 };
