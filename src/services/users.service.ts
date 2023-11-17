@@ -116,7 +116,7 @@ const createUser = async (user: UserRequestBody) => {
 };
 
 const deleteUser = async (id: string) => {
-  const user = await UserModel.findOne({ _id: id });
+  const user = await UserModel.findByIdAndDelete({ _id: id });
 
   if (!user) {
     throw customError({
@@ -125,8 +125,6 @@ const deleteUser = async (id: string) => {
       message: `Nenhum usuário foi encontrado com o id ${id}`,
     });
   }
-
-  await UserModel.deleteOne({ _id: id });
 };
 
 export default {
