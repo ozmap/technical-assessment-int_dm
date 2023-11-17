@@ -24,9 +24,9 @@ const getUserById = async (id: string) => {
 
   if (!user) {
     throw customError({
-      name: 'BAD_REQUEST',
-      statusCode: 400,
-      message: `O id ${id} é inválido`,
+      name: 'NOT_FOUND',
+      statusCode: 404,
+      message: `Nenhum usuário foi encontrado com o id ${id}`,
     });
   }
 
@@ -38,9 +38,9 @@ const updateUserById = async (id: string, update: UserRequestBody) => {
 
   if (!user) {
     throw customError({
-      name: 'BAD_REQUEST',
-      statusCode: 400,
-      message: `O id ${id} é inválido`,
+      name: 'NOT_FOUND',
+      statusCode: 404,
+      message: `Nenhum usuário foi encontrado com o id ${id}`,
     });
   }
 
@@ -115,9 +115,24 @@ const createUser = async (user: UserRequestBody) => {
   return { message: 'Usuário criado com sucesso', data: result };
 };
 
+const deleteUser = async (id: string) => {
+  const user = await UserModel.findOne({ _id: id });
+
+  if (!user) {
+    throw customError({
+      name: 'NOT_FOUND',
+      statusCode: 404,
+      message: `Nenhum usuário foi encontrado com o id ${id}`,
+    });
+  }
+
+  await UserModel.deleteOne({ _id: id });
+};
+
 export default {
   findAll,
   getUserById,
   updateUserById,
   createUser,
+  deleteUser,
 };

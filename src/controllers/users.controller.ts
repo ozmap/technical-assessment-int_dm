@@ -48,9 +48,21 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    await usersService.deleteUser(id);
+
+    return res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   findAll,
   getUserById,
   updateUserById,
   createUser,
+  deleteUser,
 };
