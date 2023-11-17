@@ -1,6 +1,6 @@
 import usersService from '../services/users.service';
 import { NextFunction, Request, Response } from 'express';
-import { UserRequestBody } from '../types';
+import { UserRequestBody } from '../types/user.types';
 
 const findAll = async (req: Request, res: Response, next: NextFunction) => {
   try {
