@@ -20,3 +20,12 @@ export const userSchema = Joi.object({
     'object.oxor': 'Informe apenas endereço ou coordenadas',
     'array.length': 'Informe coordenadas com latitude e longitude',
   });
+
+export const regionSchema = Joi.object({
+  name: Joi.string().label('name').required(),
+  coordinates: Joi.array().items(Joi.number(), Joi.number()).length(2).label('coordinates').required(),
+  user: Joi.string().label('user').required(),
+}).messages({
+  'any.required': 'É necessário o campo {{#label}}',
+  'array.length': 'Informe coordenadas com latitude e longitude',
+});
