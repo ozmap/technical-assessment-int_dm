@@ -11,19 +11,22 @@ export const STATUS = {
   DEFAULT_ERROR: 418,
 }
 
-export interface CreateRequestBody {
-  name: string
+export interface UserBodyTypes {
+  nameUser: string
   email: string
-  address?: string
-  coordinates?: [number, number]
-  //regions?: string | [number, number]
+  addressUser?: string
+  coordinatesUser?: [number, number]
+  region?: {
+    nameRegion: string
+    coordinatesRegion: [number, number]
+  }
 }
 
 const create = async (req, res) => {
   try {
-    const { name, email, address, coordinates }: CreateRequestBody = req.body
+    const { nameUser, email, addressUser, coordinatesUser }: UserBodyTypes = req.body
 
-    if (!name || !email) {
+    if (!nameUser || !email) {
       return res.status(STATUS.BAD_REQUEST).send({
         message: 'Preencha os campos : Nome e E-mail corretamente, para efetuar o cadastro',
       })
@@ -37,10 +40,10 @@ const create = async (req, res) => {
     }
 
     const user = await userService.createService({
-      name,
+      nameUser,
       email,
-      address,
-      coordinates,
+      addressUser,
+      coordinatesUser,
     })
 
     if (!user) {
@@ -51,10 +54,10 @@ const create = async (req, res) => {
       menssage: 'Usuário criado com sucesso!',
       user: {
         id: user._id,
-        name,
+        nameUser,
         email,
-        address,
-        coordinates: user.coordinates,
+        addressUser,
+        coordinatesUser,
       },
     })
   } catch (error) {
@@ -100,7 +103,7 @@ const findById = async (req, res) => {
 const update = async (req, res) => {
   try {
     const { id } = req.params
-    const { name, email, address, coordinates }: CreateRequestBody = req.body
+    const { nameUser, email, addressUser, coordinatesUser }: UserBodyTypes = req.body
 
     const user = await UserModel.findOne({ _id: id }).lean()
 
@@ -109,7 +112,7 @@ const update = async (req, res) => {
       return
     }
 
-    await userService.updateService(id, name, email, address, coordinates)
+    await userService.updateService(id, nameUser, email, addressUser, coordinatesUser)
 
     return res.status(STATUS.UPDATED).json({ message: 'Atualização feita com sucesso' })
   } catch (error) {

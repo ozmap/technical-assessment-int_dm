@@ -1,12 +1,12 @@
 import { Router } from 'express'
-//import regionsController from "../regions.controller";
+import controllerRegions from '../controller.regions'
 
 const router = Router()
 
-// router.post("/", regionsController.create);
-// router.get("/", regionsController.findAll);
-// router.get("/:id", regionsController.findById);
-// router.patch("/:id", regionsController.update);
-// router.delete("/:id", regionsController.deleteById);
+router.post('/', controllerRegions.createRegions)
+router.get('/', controllerRegions.findAllRegions)
+router.get('/:id', controllerRegions.findByIdRegions)
+router.patch('/:id', controllerRegions.updateRegions)
+router.delete('/:id', controllerRegions.deleteByIdRegions)
 
 export default router

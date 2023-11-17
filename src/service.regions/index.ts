@@ -1,28 +1,23 @@
+import { RegionBodyTypes } from '../controller.regions'
 import { RegionModel } from '../models/models'
 
-const createServiceRegions = (body) => RegionModel.create(body)
+const createService = (body: RegionBodyTypes) => RegionModel.create(body)
 
-const findAllServiceRegions = () => RegionModel.find()
+const findAllRegions = () => RegionModel.find()
 
-const findByIdServiceRegions = (id: string) => RegionModel.findById(id)
+const findByIdRegions = (id: string) => RegionModel.findById(id)
 
-const updateServiceRegions = (
-  id: string,
-  name: string,
-  email: string,
-  address: string,
-  coordinates: [number, number],
-) =>
-  RegionModel.findOneAndUpdate({ _id: id }, { name, email, address, coordinates }).catch((error) => {
+const updateRegions = (id: string, nameRegion: string, owner: string, coordinatesRegion: [number, number]) =>
+  RegionModel.findOneAndUpdate({ _id: id }, { nameRegion, owner, coordinatesRegion }).catch((error) => {
     console.error('Erro no serviço de atualização:', error)
   })
 
-const deleteByIdServiceRegions = (userId) => RegionModel.deleteOne(userId)
+const deleteByIdRegions = (regionId) => RegionModel.deleteOne(regionId)
 
 export default {
-  createServiceRegions,
-  findAllServiceRegions,
-  findByIdServiceRegions,
-  updateServiceRegions,
-  deleteByIdServiceRegions,
+  createService,
+  findAllRegions,
+  findByIdRegions,
+  updateRegions,
+  deleteByIdRegions,
 }

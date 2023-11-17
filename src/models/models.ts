@@ -2,7 +2,7 @@ import 'reflect-metadata'
 
 import * as mongoose from 'mongoose'
 import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses'
-import { Prop, getModelForClass } from '@typegoose/typegoose'
+import { Prop, getModelForClass, Ref } from '@typegoose/typegoose'
 
 class Base extends TimeStamps {
   @Prop({ required: true, default: () => new mongoose.Types.ObjectId().toString() })
@@ -11,32 +11,31 @@ class Base extends TimeStamps {
 
 export class User extends Base {
   @Prop({ required: true })
-  name!: string
+  nameUser!: string
 
   @Prop({ required: true, unique: true })
   email!: string
 
   @Prop({ required: false })
-  address?: string
+  addressUser?: string
 
   @Prop({ required: false, type: () => [Number] })
-  coordinates?: [number, number]
+  coordinatesUser?: [number, number]
 
-  //   @Prop({ required: false, ref: () => Region })
-  //   region?: Ref<Region>
-  //
+  @Prop({ required: false, ref: () => Region })
+  region?: Ref<Region>
 }
 
-// export class Region extends Base {
-//   @Prop({ required: true })
-//   name!: string
+export class Region extends Base {
+  @Prop({ required: true })
+  nameRegion!: string
 
-//   @Prop({ ref: () => User, required: true })
-//   owner!: Ref<User>
+  @Prop({ ref: () => User, required: true })
+  owner!: Ref<User>
 
-//   @Prop({ required: true, type: () => [Number] })
-//   coordinates?: [number, number]
-// }
+  @Prop({ required: true, type: () => [Number] })
+  coordinatesRegion!: [number, number]
+}
 
 export const UserModel = getModelForClass(User)
-//export const RegionModel = getModelForClass(Region)
+export const RegionModel = getModelForClass(Region)

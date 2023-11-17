@@ -1,14 +1,20 @@
 import { UserModel } from '../models/models'
-import { CreateRequestBody } from '../controller.user/index'
+import { UserBodyTypes } from '../controller.user/index'
 
-const createService = (body: CreateRequestBody) => UserModel.create(body)
+const createService = (body: UserBodyTypes) => UserModel.create(body)
 
 const findAllService = () => UserModel.find()
 
 const findByIdService = (id: string) => UserModel.findById(id)
 
-const updateService = (id: string, name: string, email: string, address: string, coordinates: [number, number]) =>
-  UserModel.findOneAndUpdate({ _id: id }, { name, email, address, coordinates }).catch((error) => {
+const updateService = (
+  id: string,
+  nameUser: string,
+  email: string,
+  addressUser: string,
+  coordinatesUser: [number, number],
+) =>
+  UserModel.findOneAndUpdate({ _id: id }, { nameUser, email, addressUser, coordinatesUser }).catch((error) => {
     console.error('Erro no serviço de atualização:', error)
   })
 

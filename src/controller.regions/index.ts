@@ -1,20 +1,131 @@
-// import { Ref } from "@typegoose/typegoose/lib/types";
-// import { STATUS } from "../controller.user/index";
+import { STATUS } from '../controller.user/index'
+import { RegionModel } from '../models/models'
+import regionService from '../service.regions/index'
 
-// const createRegions = async (req, res) => {};
+export interface RegionBodyTypes {
+  nameRegion: string
+  coordinatesRegion: [number, number]
+  owner: string
+}
 
-// const findAllRegions = async (req, res) => {};
+const createRegions = async (req, res) => {
+  try {
+    const { nameRegion, coordinatesRegion, owner }: RegionBodyTypes = req.body
 
-// const findByIdRegions = async (req, res) => {};
+    if (!nameRegion || !coordinatesRegion || !owner) {
+      return res.status(STATUS.BAD_REQUEST).send({
+        message: 'Preencha  todos os campos corretamente para registrar a Região',
+      })
+    }
 
-// const updateRegions = async (req, res) => {};
+    const existingRegion = await RegionModel.findOne({ coordinatesRegion }).lean()
+    if (existingRegion) {
+      return res.status(STATUS.BAD_REQUEST).send({
+        message: 'Região já cadastrada',
+      })
+    }
 
-// const deleteByIdRegions = async (req, res) => {};
+    const region = await regionService.createService({
+      nameRegion,
+      owner,
+      coordinatesRegion,
+    })
 
-// export default {
-//   createRegions,
-//   findAllRegions,
-//   findByIdRegions,
-//   updateRegions,
-//   deleteByIdRegions,
-// };
+    if (!region) {
+      return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar Região' })
+    }
+
+    return res.status(STATUS.CREATED).send({
+      menssage: 'Região criada com sucesso!',
+      user: {
+        id: region._id,
+        nameRegion,
+        owner,
+        coordinatesRegion,
+      },
+    })
+  } catch (error) {
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+  }
+}
+
+const findAllRegions = async (req, res) => {
+  try {
+    const { page, limit } = req.query
+
+    const [Regions, total] = await Promise.all([RegionModel.find().lean(), RegionModel.count()])
+
+    return res
+      .json({
+        rows: Regions,
+        page,
+        limit,
+        total,
+      })
+      .status(STATUS.OK)
+  } catch (error) {
+    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+  }
+}
+
+const findByIdRegions = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const region = await RegionModel.findOne({ _id: id }).lean()
+
+    if (!region) {
+      res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
+    }
+
+    return res.status(STATUS.OK).json({ region })
+  } catch (error) {
+    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+  }
+}
+
+const updateRegions = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { nameRegion, owner, coordinatesRegion }: RegionBodyTypes = req.body
+
+    const region = await RegionModel.findOne({ _id: id }).lean()
+
+    if (!region) {
+      res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
+      return
+    }
+
+    await regionService.updateRegions(id, nameRegion, owner, coordinatesRegion)
+
+    return res.status(STATUS.UPDATED).json({ message: 'Atualização feita com sucesso' })
+  } catch (error) {
+    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+  }
+}
+
+const deleteByIdRegions = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const region = await RegionModel.findOne({ _id: id })
+
+    if (!region) {
+      return res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
+    }
+
+    await RegionModel.deleteOne({ _id: id })
+
+    return res.status(STATUS.OK).json({ message: 'Região excluída com sucesso' })
+  } catch (error) {
+    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+  }
+}
+
+export default {
+  createRegions,
+  findAllRegions,
+  findByIdRegions,
+  updateRegions,
+  deleteByIdRegions,
+}
