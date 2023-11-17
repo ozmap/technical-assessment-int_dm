@@ -1,6 +1,8 @@
 import customError from '../errors/error';
 import { UserModel } from '../db/models';
-import { UserRequestBody } from '../types';
+import geoLibIntegration from './geoLib.integration';
+import { NewUser, UserRequestBody } from '../types/user.types';
+import formatAddress from '../utils/formatAddress';
 
 const findAll = async (page: number, limit: number) => {
   const [users, total] = await Promise.all([
@@ -42,25 +44,75 @@ const updateUserById = async (id: string, update: UserRequestBody) => {
     });
   }
 
-  user.name = update.name;
-  user.email = update.email;
+  if (user.email === update.email) {
+    throw customError({
+      name: 'UNPROCESSABLE_ENTITY',
+      statusCode: 422,
+      message: 'Email já está cadastrado',
+    });
+  }
+
+  const newUser: NewUser = {
+    name: update.name,
+    email: update.email,
+  };
 
   if (update.address) {
-    user.address = update.address;
+    const formatedAddress = formatAddress(update.address);
+    const { lat, lng } = await geoLibIntegration.getCoordinatesFromAddress(formatedAddress);
+    const address = await geoLibIntegration.getAddressFromCoordinates([lat, lng]);
+
+    newUser.coordinates = [lat, lng];
+    newUser.address = address;
   }
+
   if (update.coordinates) {
-    user.coordinates = update.coordinates;
+    const address = await geoLibIntegration.getAddressFromCoordinates([...update.coordinates]);
+
+    newUser.address = address;
+    newUser.coordinates = update.coordinates;
   }
 
-  await user.save();
+  await UserModel.updateOne({ _id: id }, newUser);
 
-  return { message: 'Usuario atualizado com sucesso' };
+  return { message: 'Usuário atualizado com sucesso' };
 };
 
 const createUser = async (user: UserRequestBody) => {
-  const newUser = await UserModel.create(user);
+  const verifyNewUser = await UserModel.findOne({ email: user.email });
 
-  return { message: 'Usuário criado com sucesso', data: newUser };
+  if (verifyNewUser) {
+    throw customError({
+      name: 'UNPROCESSABLE_ENTITY',
+      statusCode: 422,
+      message: 'Email já está cadastrado',
+    });
+  }
+
+  const newUser: NewUser = {
+    name: user.name,
+    email: user.email,
+  };
+
+  if (user.address) {
+    const formatedAddress = formatAddress(user.address);
+    const { lat, lng } = await geoLibIntegration.getCoordinatesFromAddress(formatedAddress);
+    const address = await geoLibIntegration.getAddressFromCoordinates([lat, lng]);
+
+    newUser.coordinates = [lat, lng];
+    newUser.address = address;
+  }
+
+  if (user.coordinates) {
+    const address = await geoLibIntegration.getAddressFromCoordinates([...user.coordinates]);
+
+    newUser.address = address;
+    newUser.coordinates = user.coordinates;
+  }
+
+  const result = await UserModel.create(newUser);
+
+  return { message: 'Usuário criado com sucesso', data: result };
 };
 
 export default {
