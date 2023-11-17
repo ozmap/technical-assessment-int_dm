@@ -2,10 +2,10 @@ import usersService from '../services/users.service';
 import { NextFunction, Request, Response } from 'express';
 import { UserRequestBody } from '../types/user.types';
 
-const findAll = async (req: Request, res: Response, next: NextFunction) => {
+const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-    const users = await usersService.findAll(Number(page), Number(limit));
+    const users = await usersService.getAllUsers(Number(page), Number(limit));
 
     return res.status(200).json(users);
   } catch (error) {
@@ -60,7 +60,7 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 export default {
-  findAll,
+  getAllUsers,
   getUserById,
   updateUserById,
   createUser,

@@ -4,7 +4,7 @@ import validateUser from '../middlewares/validateUser.middleware';
 
 const router = Router();
 
-router.get('/', usersController.findAll);
+router.get('/', usersController.getAllUsers);
 router.get('/:id', usersController.getUserById);
 router.put('/:id', validateUser, usersController.updateUserById);
 router.post('/', validateUser, usersController.createUser);

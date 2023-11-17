@@ -4,7 +4,7 @@ import geoLibIntegration from './geoLib.integration';
 import { NewUser, UserRequestBody } from '../types/user.types';
 import formatAddress from '../utils/formatAddress';
 
-const findAll = async (page: number, limit: number) => {
+const getAllUsers = async (page: number, limit: number) => {
   const [users, total] = await Promise.all([
     UserModel.find()
       .limit(limit)
@@ -130,7 +130,7 @@ const deleteUser = async (id: string) => {
 };
 
 export default {
-  findAll,
+  getAllUsers,
   getUserById,
   updateUserById,
   createUser,
