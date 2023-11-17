@@ -18,14 +18,6 @@ const validateUser = (req: Request, _res: Response, next: NextFunction) => {
       });
     }
 
-    if (!user.address) {
-      user.address = ' ';
-    }
-
-    const formattedAddress = user.address.split(' ').join('+');
-
-    user.address = formattedAddress;
-
     next();
   } catch (error) {
     next(error);
