@@ -1,5 +1,6 @@
 import { UserModel } from '../models/models'
 import userService from '../service.user'
+import regionService from '../service.regions'
 
 export const STATUS = {
   OK: 200,
@@ -24,7 +25,7 @@ export interface UserBodyTypes {
 
 const create = async (req, res) => {
   try {
-    const { nameUser, email, addressUser, coordinatesUser }: UserBodyTypes = req.body
+    const { nameUser, email, addressUser, coordinatesUser, region }: UserBodyTypes = req.body
 
     if (!nameUser || !email) {
       return res.status(STATUS.BAD_REQUEST).send({
@@ -50,8 +51,32 @@ const create = async (req, res) => {
       return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar usuário' })
     }
 
+    if (region) {
+      const regionData = {
+        nameRegion: region.nameRegion,
+        owner: user._id,
+        coordinatesRegion: region.coordinatesRegion,
+      }
+
+      const createdRegion = await regionService.createService(regionData)
+      user.regions = [createdRegion._id]
+      await user.save()
+
+      return res.status(STATUS.CREATED).send({
+        message: 'Usuário e região criados com sucesso!',
+        user: {
+          id: user._id,
+          nameUser,
+          email,
+          addressUser,
+          coordinatesUser,
+          regions: [createdRegion._id],
+        },
+      })
+    }
+
     return res.status(STATUS.CREATED).send({
-      menssage: 'Usuário criado com sucesso!',
+      message: 'Usuário criado com sucesso!',
       user: {
         id: user._id,
         nameUser,
@@ -128,6 +153,12 @@ const deleteById = async (req, res) => {
 
     if (!user) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
+    }
+
+    if (user.regions && user.regions.length > 0) {
+      return res.status(STATUS.BAD_REQUEST).json({
+        message: 'Usuário ainda é proprietário de região(ões), por esse motivo não pode ser excluído.',
+      })
     }
 
     await UserModel.deleteOne({ _id: id })

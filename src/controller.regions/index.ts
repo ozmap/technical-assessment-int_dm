@@ -1,5 +1,5 @@
 import { STATUS } from '../controller.user/index'
-import { RegionModel } from '../models/models'
+import { RegionModel, UserModel } from '../models/models'
 import regionService from '../service.regions/index'
 
 export interface RegionBodyTypes {
@@ -33,6 +33,14 @@ const createRegions = async (req, res) => {
 
     if (!region) {
       return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar Região' })
+    }
+
+    const regionId = region._id
+    const user = await UserModel.findById(owner)
+
+    if (user) {
+      user.regions.push(regionId)
+      await user.save()
     }
 
     return res.status(STATUS.CREATED).send({
@@ -96,7 +104,15 @@ const updateRegions = async (req, res) => {
       return
     }
 
-    await regionService.updateRegions(id, nameRegion, owner, coordinatesRegion)
+    const oldOwnerId = (region.owner as { _id?: string })?._id
+
+    const updatedRegion = await regionService.updateRegions(id, nameRegion, owner, coordinatesRegion)
+
+    if (oldOwnerId && oldOwnerId !== owner) {
+      await UserModel.findByIdAndUpdate(oldOwnerId, { $pull: { regions: id } })
+    }
+
+    await UserModel.findByIdAndUpdate(owner, { $addToSet: { regions: id } })
 
     return res.status(STATUS.UPDATED).json({ message: 'Atualização feita com sucesso' })
   } catch (error) {

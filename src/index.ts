@@ -1,5 +1,3 @@
-// import "./database";
-
 import express = require('express')
 import init from './database/database'
 import env = require('dotenv')

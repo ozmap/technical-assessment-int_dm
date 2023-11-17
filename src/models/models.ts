@@ -22,8 +22,8 @@ export class User extends Base {
   @Prop({ required: false, type: () => [Number] })
   coordinatesUser?: [number, number]
 
-  @Prop({ required: false, ref: () => Region })
-  region?: Ref<Region>
+  @Prop({ required: false, default: [] as Ref<Region>[] })
+  regions?: Ref<Region>[]
 }
 
 export class Region extends Base {
