@@ -16,13 +16,12 @@ export interface CreateRequestBody {
   email: string
   address?: string
   coordinates?: [number, number]
-  regions?: string | [number, number]
+  //regions?: string | [number, number]
 }
 
 const create = async (req, res) => {
   try {
-    const { name, email, address }: CreateRequestBody = req.body
-    const userCoordinates = req.coordinates
+    const { name, email, address, coordinates }: CreateRequestBody = req.body
 
     if (!name || !email) {
       return res.status(STATUS.BAD_REQUEST).send({
@@ -37,33 +36,27 @@ const create = async (req, res) => {
       })
     }
 
-    if ((userCoordinates != '' && !address) || (!userCoordinates && address != '')) {
-      const user = await userService.createService({
+    const user = await userService.createService({
+      name,
+      email,
+      address,
+      coordinates,
+    })
+
+    if (!user) {
+      return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar usuário' })
+    }
+
+    return res.status(STATUS.CREATED).send({
+      menssage: 'Usuário criado com sucesso!',
+      user: {
+        id: user._id,
         name,
         email,
         address,
-        coordinates: userCoordinates,
-      })
-
-      if (!user) {
-        return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar usuário' })
-      }
-
-      return res.status(STATUS.CREATED).send({
-        menssage: 'Usuário criado com sucesso!',
-        user: {
-          id: user._id,
-          name,
-          email,
-          address,
-          coordinates: user.coordinates,
-        },
-      })
-    } else {
-      return res.status(STATUS.BAD_REQUEST).send({
-        message: 'Preencha apenas um dos campos: Coordenadas ou Endereço, para efetuar o cadastro',
-      })
-    }
+        coordinates: user.coordinates,
+      },
+    })
   } catch (error) {
     return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
   }

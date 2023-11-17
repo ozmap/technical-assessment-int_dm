@@ -1,45 +1,48 @@
+import * as NodeGeocoder from 'node-geocoder'
 import { STATUS } from '../controller.user/index'
 
-import request = require('request')
-
-export interface CoordinatesTypes {
-  region?: string
-  lat: number
-  lon: number
+const geocoderOptions = {
+  provider: 'openstreetmap',
 }
+
+const geocoder = NodeGeocoder(geocoderOptions)
 
 export const filterUser = async (req, res, next) => {
   const { address, coordinates } = req.body
 
-  if (address !== '') {
-    next()
+  if ((address && coordinates) || (!address && !coordinates)) {
+    return res.status(STATUS.BAD_REQUEST).json({ error: 'Informe apenas o endereço ou as coordenadas' })
   }
 
-  if (!coordinates && !address) {
-    try {
-      const url = 'http://ip-api.com/json'
-      const ipInfo = await new Promise<CoordinatesTypes>((resolve, reject) => {
-        request(url, (err, response, body) => {
-          if (err) {
-            reject(err)
-            console.log('Erro de conexao com servidor')
-          } else {
-            const { lat, lon } = JSON.parse(body)
-            const coords: CoordinatesTypes = {
-              lat,
-              lon,
-            }
-            console.log(coords)
-            resolve(coords)
-          }
-        })
-      })
+  try {
+    if (address) {
+      const data = await geocoder.geocode(address)
+      if (data.length === 0) {
+        return res.status(STATUS.NOT_FOUND).json({ error: 'Endereço não encontrado' })
+      }
 
-      req.coordinates = [ipInfo.lat, ipInfo.lon]
+      const formattedAddress = `${data[0].streetName}, ${data[0].streetNumber}, ${
+        data[0].neighborhood || data[0].extra?.neighborhood || ''
+      }, ${data[0].zipcode}`
 
-      next()
-    } catch (error) {
-      res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: 'Erro ao obter coordenadas automaticamente:', error })
+      req.body.coordinates = [data[0].latitude, data[0].longitude]
+      req.body.address = formattedAddress
+    } else {
+      const [lat, lon] = coordinates as [number, number]
+      const data = await geocoder.reverse({ lat, lon })
+      if (data.length === 0) {
+        return res.status(STATUS.NOT_FOUND).json({ error: 'Coordenadas não encontradas' })
+      }
+
+      const formattedAddress = `${data[0].streetName}, ${data[0].streetNumber}, ${
+        data[0].neighborhood || data[0].extra?.neighborhood || ''
+      }, ${data[0].zipcode}`
+
+      req.body.address = formattedAddress
     }
+    next()
+  } catch (error) {
+    console.error('Erro ao processar a requisição:', error)
+    res.status(STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Erro interno do servidor' })
   }
 }
