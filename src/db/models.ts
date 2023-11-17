@@ -5,31 +5,30 @@ import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { pre, getModelForClass, Prop, Ref, modelOptions } from '@typegoose/typegoose';
 
 import ObjectId = mongoose.Types.ObjectId;
-import lib from '../lib';
+// import lib from '../lib';
 
 class Base extends TimeStamps {
   @Prop({ required: true, default: () => new ObjectId().toString() })
   _id: string;
 }
 
-@pre<User>('save', async function (next) {
-  const region = this as Omit<any, keyof User> & User;
+// @pre<User>('save', async function (next) {
+//   const user = this as Omit<any, keyof User> & User;
 
-  if (region.isModified('coordinates')) {
-    region.address = await lib.getAddressFromCoordinates(region.coordinates);
-  } else if (region.isModified('address')) {
-    const { lat, lng } = await lib.getCoordinatesFromAddress(region.address);
+//   if (user.isModified('coordinates')) {
+//     user.address = await lib.getAddressFromCoordinates(user.coordinates);
+//   } else if (user.isModified('address')) {
+//     const { lat, lng } = await lib.getCoordinatesFromAddress(user.address);
+//     user.coordinates = [lat, lng];
+//   }
 
-    region.coordinates = [lng, lat];
-  }
-
-  next();
-})
+//   next();
+// })
 export class User extends Base {
   @Prop({ required: true })
   name!: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   email!: string;
 
   @Prop({ required: true })
