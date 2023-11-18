@@ -20,7 +20,7 @@ const getAllUsers = async (page: number, limit: number) => {
 };
 
 const getUserById = async (id: string) => {
-  const user = await UserModel.findOne({ _id: id }).lean();
+  const user = await UserModel.findOne({ _id: id }).populate('regions');
 
   if (!user) {
     throw customError({
@@ -38,39 +38,27 @@ const updateUserById = async (id: string, update: UserRequestBody) => {
 
   if (!user) {
     throw customError({
-      name: 'NOT_FOUND',
-      statusCode: 404,
-      message: `Nenhum usuário foi encontrado com o id ${id}`,
+      name: 'BAD_REQUEST',
+      statusCode: 400,
+      message: 'Id de usuário inválido',
     });
   }
 
-  if (user.email === update.email) {
-    throw customError({
-      name: 'UNPROCESSABLE_ENTITY',
-      statusCode: 422,
-      message: 'Email já está cadastrado',
-    });
-  }
-
-  const newUser: NewUser = {
-    name: update.name,
-    email: update.email,
-  };
+  const newUser: NewUser = { name: update.name, email: update.email };
 
   if (update.address) {
+    const { lat, lng } = await geoLibIntegration.getCoordinatesFromAddress(update.address.zipCode);
     const formatedAddress = formatAddress(update.address);
-    const { lat, lng } = await geoLibIntegration.getCoordinatesFromAddress(formatedAddress);
-    const address = await geoLibIntegration.getAddressFromCoordinates([lat, lng]);
 
-    newUser.coordinates = [lat, lng];
-    newUser.address = address;
+    newUser.coordinates = [lng, lat];
+    newUser.address = formatedAddress;
   }
 
   if (update.coordinates) {
-    const address = await geoLibIntegration.getAddressFromCoordinates([...update.coordinates]);
+    const address = await geoLibIntegration.getAddressFromCoordinates(update.coordinates);
 
     newUser.address = address;
-    newUser.coordinates = update.coordinates;
+    newUser.coordinates = [update.coordinates.lng, update.coordinates.lat];
   }
 
   await UserModel.updateOne({ _id: id }, newUser);
@@ -96,18 +84,17 @@ const createUser = async (user: UserRequestBody) => {
 
   if (user.address) {
     const { lat, lng } = await geoLibIntegration.getCoordinatesFromAddress(user.address.zipCode);
-
     const formatedAddress = formatAddress(user.address);
 
-    newUser.coordinates = [lat, lng];
+    newUser.coordinates = [lng, lat];
     newUser.address = formatedAddress;
   }
 
   if (user.coordinates) {
-    const address = await geoLibIntegration.getAddressFromCoordinates([...user.coordinates]);
+    const address = await geoLibIntegration.getAddressFromCoordinates(user.coordinates);
 
     newUser.address = address;
-    newUser.coordinates = user.coordinates;
+    newUser.coordinates = [user.coordinates.lng, user.coordinates.lat];
   }
 
   const result = await UserModel.create(newUser);

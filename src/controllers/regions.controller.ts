@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import regionsService from '../services/regions.service';
 import { RegionRequestBody } from '../types/region.types';
-import { UserModel } from '../db/models';
-import customError from '../errors/error';
 
 const getAllRegions = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -26,19 +24,44 @@ const getRegionById = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+const getRegionsBySpecificPoint = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { lng, lat } = req.params;
+
+    const regions = await regionsService.getRegionsBySpecificPoint(Number(lng), Number(lat));
+
+    return res.status(200).json(regions);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getRegionsByDistance = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { lng, lat, distance, user } = req.query;
+
+    if (user) {
+      const regions = await regionsService.getRegionsByDistance(
+        Number(lng),
+        Number(lat),
+        Number(distance),
+        String(user),
+      );
+
+      return res.status(200).json(regions);
+    }
+
+    const regions = await regionsService.getRegionsByDistance(Number(lng), Number(lat), Number(distance));
+
+    return res.status(200).json(regions);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createRegion = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const region: RegionRequestBody = req.body;
-
-    const verifyUser = await UserModel.findById(region.user);
-
-    if (!verifyUser) {
-      throw customError({
-        name: 'NOT_FOUND',
-        statusCode: 404,
-        message: `Nenhum usuário foi encontrado com o id ${region.user}`,
-      });
-    }
 
     const newRegion = await regionsService.createRegion(region);
 
@@ -76,6 +99,8 @@ const deleteRegion = async (req: Request, res: Response, next: NextFunction) => 
 export default {
   getAllRegions,
   getRegionById,
+  getRegionsBySpecificPoint,
+  getRegionsByDistance,
   createRegion,
   updateRegion,
   deleteRegion,
