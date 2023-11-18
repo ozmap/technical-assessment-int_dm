@@ -1,5 +1,8 @@
 export type RegionRequestBody = {
   name: string;
-  coordinates: [number, number];
+  coordinates: {
+    lng: number;
+    lat: number;
+  };
   user: string;
 };

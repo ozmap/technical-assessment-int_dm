@@ -2,7 +2,10 @@ export type UserRequestBody = {
   name: string;
   email: string;
   address?: UserAddress;
-  coordinates?: [number, number];
+  coordinates?: {
+    lng: number;
+    lat: number;
+  };
 };
 
 export type UserAddress = {
