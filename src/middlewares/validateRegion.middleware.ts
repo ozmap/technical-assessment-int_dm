@@ -3,19 +3,9 @@ import { regionSchema } from './joi.schemas';
 import customError from '../errors/error';
 import { RegionRequestBody } from '../types/region.types';
 
-const validateRegion = (req: Request, res: Response, next: NextFunction) => {
+const validateRegion = (req: Request, _res: Response, next: NextFunction) => {
   try {
     const region: RegionRequestBody = req.body;
-
-    if (region.coordinates) {
-      if (typeof region.coordinates[0] !== 'number' || typeof region.coordinates[1] !== 'number') {
-        throw customError({
-          name: 'BAD_REQUEST',
-          statusCode: 400,
-          message: 'Informe coordenadas com latitude e longitude em formato numérico',
-        });
-      }
-    }
 
     const { error } = regionSchema.validate(region);
 
@@ -24,6 +14,14 @@ const validateRegion = (req: Request, res: Response, next: NextFunction) => {
         name: 'BAD_REQUEST',
         statusCode: 400,
         message: error.message,
+      });
+    }
+
+    if (typeof region.coordinates.lng !== 'number' || typeof region.coordinates.lat !== 'number') {
+      throw customError({
+        name: 'BAD_REQUEST',
+        statusCode: 400,
+        message: 'Informe coordenadas com latitude e longitude em formato numérico',
       });
     }
 

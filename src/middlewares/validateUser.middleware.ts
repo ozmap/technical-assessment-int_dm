@@ -15,16 +15,6 @@ const validateUser = (req: Request, _res: Response, next: NextFunction) => {
       });
     }
 
-    if (user.coordinates) {
-      if (typeof user.coordinates[0] !== 'number' || typeof user.coordinates[1] !== 'number') {
-        throw customError({
-          name: 'BAD_REQUEST',
-          statusCode: 400,
-          message: 'Informe coordenadas com latitude e longitude em formato numérico',
-        });
-      }
-    }
-
     const { error } = userSchema.validate(user);
 
     if (error) {
@@ -32,6 +22,14 @@ const validateUser = (req: Request, _res: Response, next: NextFunction) => {
         name: 'BAD_REQUEST',
         statusCode: 400,
         message: error.message,
+      });
+    }
+
+    if (typeof user.coordinates.lng !== 'number' || typeof user.coordinates.lat !== 'number') {
+      throw customError({
+        name: 'BAD_REQUEST',
+        statusCode: 400,
+        message: 'Informe coordenadas com latitude e longitude em formato numérico',
       });
     }
 

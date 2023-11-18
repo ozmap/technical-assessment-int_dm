@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 const init = async function () {
-  console.log('Conectando ao banco');
+  console.log('Connecting database');
   await mongoose.connect(MONGODB_URI);
-  console.log('Conectado ao banco');
+  console.log('Database connected');
 };
 
 export default init();

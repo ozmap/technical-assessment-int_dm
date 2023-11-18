@@ -12,21 +12,29 @@ export const userSchema = Joi.object({
     state: Joi.string().required(),
     country: Joi.string().required(),
   }).label('address'),
-  coordinates: Joi.array().items(Joi.number(), Joi.number()).length(2).label('coordinates'),
+  coordinates: Joi.object({
+    lng: Joi.number().required(),
+    lat: Joi.number().required(),
+  }).label('coordinates'),
 })
   .oxor('address', 'coordinates')
   .messages({
     'any.required': 'É necessário o campo {{#label}}',
     'string.email': 'Formato de email inválido',
     'object.oxor': 'Informe apenas endereço ou coordenadas',
-    'array.length': 'Informe coordenadas com latitude e longitude',
+    'object.base': '{{#label}} precisa ser um objeto',
   });
 
 export const regionSchema = Joi.object({
   name: Joi.string().label('name').required(),
-  coordinates: Joi.array().items(Joi.number(), Joi.number()).length(2).label('coordinates').required(),
+  coordinates: Joi.object({
+    lng: Joi.number().required(),
+    lat: Joi.number().required(),
+  })
+    .label('coordinates')
+    .required(),
   user: Joi.string().label('user').required(),
 }).messages({
   'any.required': 'É necessário o campo {{#label}}',
-  'array.length': 'Informe coordenadas com latitude e longitude',
+  'object.base': '{{#label}} precisa ser um objeto',
 });
