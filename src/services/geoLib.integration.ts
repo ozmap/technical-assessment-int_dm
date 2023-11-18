@@ -18,11 +18,11 @@ class GeoLib {
     return response.data.results[0].formatted_address;
   }
 
-  public async getCoordinatesFromAddress(address: string): Promise<{ lat: number; lng: number }> {
-    const response = await axios.get(`${GEOCODING_URL}${address}&key=${API_KEY}`);
+  public async getCoordinatesFromAddress(zipcode: string): Promise<{ lat: number; lng: number }> {
+    const response = await axios.get(`${GEOCODING_URL}${zipcode}&key=${API_KEY}`);
 
     if (!response.data || response.data.status !== 'OK') {
-      throw new Error('Resposta inválida da Geocoding API');
+      throw new Error('CEP inválido');
     }
 
     if (!response.data.results.length) {

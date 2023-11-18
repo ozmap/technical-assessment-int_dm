@@ -8,7 +8,8 @@ export type UserRequestBody = {
 export type UserAddress = {
   street: string;
   neighborhood: string;
-  number?: number;
+  number?: string;
+  zipCode: string;
   city: string;
   state: string;
   country: string;

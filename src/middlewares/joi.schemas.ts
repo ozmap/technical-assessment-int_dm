@@ -6,7 +6,8 @@ export const userSchema = Joi.object({
   address: Joi.object({
     street: Joi.string().required(),
     neighborhood: Joi.string().required(),
-    number: Joi.number(),
+    number: Joi.string(),
+    zipCode: Joi.string().required(),
     city: Joi.string().required(),
     state: Joi.string().required(),
     country: Joi.string().required(),

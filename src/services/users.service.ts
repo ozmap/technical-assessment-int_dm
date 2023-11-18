@@ -95,12 +95,12 @@ const createUser = async (user: UserRequestBody) => {
   };
 
   if (user.address) {
+    const { lat, lng } = await geoLibIntegration.getCoordinatesFromAddress(user.address.zipCode);
+
     const formatedAddress = formatAddress(user.address);
-    const { lat, lng } = await geoLibIntegration.getCoordinatesFromAddress(formatedAddress);
-    const address = await geoLibIntegration.getAddressFromCoordinates([lat, lng]);
 
     newUser.coordinates = [lat, lng];
-    newUser.address = address;
+    newUser.address = formatedAddress;
   }
 
   if (user.coordinates) {
