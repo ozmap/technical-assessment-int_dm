@@ -1,10 +1,10 @@
 import { Router } from 'express'
 import controllerUser from '../controller.user'
-import { /*createRegionsWithNewUser*/ filterUser } from '../middlewares'
+import { filterUser } from '../middlewares'
 
 const router = Router()
 
-router.post('/', filterUser, controllerUser.create /*createRegionsWithNewUser*/)
+router.post('/', filterUser, controllerUser.create)
 router.get('/', controllerUser.findAll)
 router.get('/:id', controllerUser.findById)
 router.patch('/:id', filterUser, controllerUser.update)

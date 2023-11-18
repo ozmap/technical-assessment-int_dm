@@ -13,6 +13,6 @@ init()
 
 app.use(express.json())
 app.use('/user', userRoute)
-app.use('/region', regionRoute)
+app.use('/regions', regionRoute)
 
 app.listen(port, () => console.log(`Servidor rodando na porta ${port}`))

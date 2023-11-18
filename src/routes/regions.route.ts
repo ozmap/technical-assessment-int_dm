@@ -6,6 +6,7 @@ const router = Router()
 router.post('/', controllerRegions.createRegions)
 router.get('/', controllerRegions.findAllRegions)
 router.get('/:id', controllerRegions.findByIdRegions)
+router.get('/byPoint', controllerRegions.findRegionsByPoint)
 router.patch('/:id', controllerRegions.updateRegions)
 router.delete('/:id', controllerRegions.deleteByIdRegions)
 

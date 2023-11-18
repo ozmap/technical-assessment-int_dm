@@ -2,7 +2,7 @@ import 'reflect-metadata'
 
 import * as mongoose from 'mongoose'
 import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses'
-import { Prop, getModelForClass, Ref } from '@typegoose/typegoose'
+import { Prop, getModelForClass, Ref, index } from '@typegoose/typegoose'
 
 class Base extends TimeStamps {
   @Prop({ required: true, default: () => new mongoose.Types.ObjectId().toString() })
@@ -39,3 +39,5 @@ export class Region extends Base {
 
 export const UserModel = getModelForClass(User)
 export const RegionModel = getModelForClass(Region)
+
+RegionModel.collection.createIndex({ coordinatesRegion: '2dsphere' })

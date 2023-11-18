@@ -72,7 +72,7 @@ const findAllRegions = async (req, res) => {
       })
       .status(STATUS.OK)
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
   }
 }
 
@@ -83,12 +83,12 @@ const findByIdRegions = async (req, res) => {
     const region = await RegionModel.findOne({ _id: id }).lean()
 
     if (!region) {
-      res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
+      return res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
     }
 
     return res.status(STATUS.OK).json({ region })
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
   }
 }
 
@@ -100,7 +100,7 @@ const updateRegions = async (req, res) => {
     const region = await RegionModel.findOne({ _id: id }).lean()
 
     if (!region) {
-      res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
+      return res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
       return
     }
 
@@ -116,7 +116,7 @@ const updateRegions = async (req, res) => {
 
     return res.status(STATUS.UPDATED).json({ message: 'Atualização feita com sucesso' })
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
   }
 }
 
@@ -134,7 +134,37 @@ const deleteByIdRegions = async (req, res) => {
 
     return res.status(STATUS.OK).json({ message: 'Região excluída com sucesso' })
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+  }
+}
+
+const findRegionsByPoint = async (req, res) => {
+  try {
+    const { latitude, longitude } = req.query
+    console.log(latitude, longitude)
+
+    if (!latitude || !longitude) {
+      return res.status(STATUS.BAD_REQUEST).send({
+        message: 'Informe corretamente as coordenadas (latitude e longitude) para listar as regiões.',
+      })
+    }
+    console.log('passou pelo if')
+    const regions = await regionService.findByPoint(parseFloat(latitude), parseFloat(longitude))
+
+    console.log(regions)
+
+    if (regions.length > 0) {
+      return res.status(STATUS.OK).send({
+        message: 'Regiões encontradas com sucesso!',
+        regions,
+      })
+    } else {
+      return res.status(STATUS.NOT_FOUND).send({
+        message: 'Nenhuma região encontrada!',
+      })
+    }
+  } catch (error) {
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
   }
 }
 
@@ -144,4 +174,5 @@ export default {
   findByIdRegions,
   updateRegions,
   deleteByIdRegions,
+  findRegionsByPoint,
 }
