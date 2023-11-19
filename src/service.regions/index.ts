@@ -15,7 +15,6 @@ const updateRegions = (id: string, nameRegion: string, owner: string, coordinate
 const deleteByIdRegions = (regionId) => RegionModel.deleteOne(regionId)
 
 const findByPoint = async (latitude: number, longitude: number) => {
-  console.log('chegou no service - rota')
   const regions = await RegionModel.find({
     coordinatesRegion: {
       $geoIntersects: {

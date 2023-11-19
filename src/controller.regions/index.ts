@@ -28,7 +28,7 @@ const createRegions = async (req, res) => {
     const region = await regionService.createService({
       nameRegion,
       owner,
-      coordinatesRegion,
+      coordinatesRegion: [coordinatesRegion[1], coordinatesRegion[0]],
     })
 
     if (!region) {
@@ -141,17 +141,13 @@ const deleteByIdRegions = async (req, res) => {
 const findRegionsByPoint = async (req, res) => {
   try {
     const { latitude, longitude } = req.query
-    console.log(latitude, longitude)
 
     if (!latitude || !longitude) {
       return res.status(STATUS.BAD_REQUEST).send({
         message: 'Informe corretamente as coordenadas (latitude e longitude) para listar as regiões.',
       })
     }
-    console.log('passou pelo if')
     const regions = await regionService.findByPoint(parseFloat(latitude), parseFloat(longitude))
-
-    console.log(regions)
 
     if (regions.length > 0) {
       return res.status(STATUS.OK).send({

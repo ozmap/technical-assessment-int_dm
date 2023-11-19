@@ -26,6 +26,7 @@ export class User extends Base {
   regions?: Ref<Region>[]
 }
 
+@index({ coordinatesRegion: '2dsphere' })
 export class Region extends Base {
   @Prop({ required: true })
   nameRegion!: string
@@ -39,5 +40,3 @@ export class Region extends Base {
 
 export const UserModel = getModelForClass(User)
 export const RegionModel = getModelForClass(Region)
-
-RegionModel.collection.createIndex({ coordinatesRegion: '2dsphere' })
