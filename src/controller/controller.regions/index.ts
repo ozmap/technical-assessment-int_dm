@@ -1,6 +1,6 @@
 import { STATUS } from '../controller.user/index'
-import { RegionModel, UserModel } from '../models/models'
-import regionService from '../service.regions/index'
+import { RegionModel, UserModel } from '../../models/models'
+import regionService from '../../service/service.regions'
 
 export interface RegionBodyTypes {
   nameRegion: string
@@ -28,7 +28,7 @@ const createRegions = async (req, res) => {
     const region = await regionService.createService({
       nameRegion,
       owner,
-      coordinatesRegion: [coordinatesRegion[1], coordinatesRegion[0]],
+      coordinatesRegion: [coordinatesRegion[0], coordinatesRegion[1]],
     })
 
     if (!region) {
@@ -106,7 +106,7 @@ const updateRegions = async (req, res) => {
 
     const oldOwnerId = (region.owner as { _id?: string })?._id
 
-    const updatedRegion = await regionService.updateRegions(id, nameRegion, owner, coordinatesRegion)
+    const updatedRegion = await regionService.updateRegionsService(id, nameRegion, owner, coordinatesRegion)
 
     if (oldOwnerId && oldOwnerId !== owner) {
       await UserModel.findByIdAndUpdate(oldOwnerId, { $pull: { regions: id } })
@@ -138,16 +138,17 @@ const deleteByIdRegions = async (req, res) => {
   }
 }
 
-const findRegionsByPoint = async (req, res) => {
+const findRegionsByPointSpecific = async (req, res) => {
   try {
-    const { latitude, longitude } = req.query
+    const latitude: number = parseFloat(req.query.latitude)
+    const longitude: number = parseFloat(req.query.longitude)
 
     if (!latitude || !longitude) {
       return res.status(STATUS.BAD_REQUEST).send({
         message: 'Informe corretamente as coordenadas (latitude e longitude) para listar as regiões.',
       })
     }
-    const regions = await regionService.findByPoint(parseFloat(latitude), parseFloat(longitude))
+    const regions = await regionService.findByPointSpecificService(latitude, longitude)
 
     if (regions.length > 0) {
       return res.status(STATUS.OK).send({
@@ -156,7 +157,38 @@ const findRegionsByPoint = async (req, res) => {
       })
     } else {
       return res.status(STATUS.NOT_FOUND).send({
-        message: 'Nenhuma região encontrada!',
+        message: 'Lugar correto -->Nenhuma região encontrada!',
+      })
+    }
+  } catch (error) {
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+  }
+}
+
+const findRegionsWithinDistance = async (req, res) => {
+  try {
+    const userId = req.user._id
+    const latitude: number = parseFloat(req.query.latitude)
+    const longitude: number = parseFloat(req.query.longitude)
+    const distanceInfo: number = parseInt(req.query.distance) || 1000
+
+    if (!latitude || !longitude || distanceInfo < 0) {
+      return res.status(STATUS.BAD_REQUEST).send({
+        message:
+          'Informe corretamente as coordenadas (latitude e longitude) e uma distância não pode ser negativa para listar as regiões.',
+      })
+    }
+
+    const regions = await regionService.findRegionsWithinDistanceService(userId, latitude, longitude, distanceInfo)
+
+    if (regions.length > 0) {
+      return res.status(STATUS.OK).send({
+        message: 'Regiões encontradas com sucesso!',
+        regions,
+      })
+    } else {
+      return res.status(STATUS.NOT_FOUND).send({
+        message: 'AQUI --> Nenhuma região encontrada dentro da distância especificada.',
       })
     }
   } catch (error) {
@@ -170,5 +202,6 @@ export default {
   findByIdRegions,
   updateRegions,
   deleteByIdRegions,
-  findRegionsByPoint,
+  findRegionsByPointSpecific,
+  findRegionsWithinDistance,
 }

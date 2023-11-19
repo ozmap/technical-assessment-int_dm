@@ -1,5 +1,5 @@
 import * as NodeGeocoder from 'node-geocoder'
-import { STATUS } from '../controller.user/index'
+import { STATUS } from '../controller/controller.user'
 
 const geocoderOptions = {
   provider: 'openstreetmap',

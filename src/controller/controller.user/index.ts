@@ -1,6 +1,6 @@
-import { UserModel } from '../models/models'
-import userService from '../service.user'
-import regionService from '../service.regions'
+import { UserModel } from '../../models/models'
+import userService from '../../service/service.user'
+import regionService from '../../service/service.regions'
 
 export const STATUS = {
   OK: 200,
@@ -20,6 +20,7 @@ export interface UserBodyTypes {
   region?: {
     nameRegion: string
     coordinatesRegion: [number, number]
+    owner?: string
   }
 }
 
@@ -29,14 +30,15 @@ const create = async (req, res) => {
 
     if (!nameUser || !email) {
       return res.status(STATUS.BAD_REQUEST).send({
-        message: 'Preencha os campos : Nome e E-mail corretamente, para efetuar o cadastro',
+        message: 'Preencha os campos Nome e E-mail corretamente para efetuar o cadastro',
       })
     }
 
     const existingUser = await UserModel.findOne({ email }).lean()
+
     if (existingUser) {
       return res.status(STATUS.BAD_REQUEST).send({
-        message: 'Usuário com e-mail já cadastrado',
+        message: 'Usuário com esse e-mail já cadastrado',
       })
     }
 
@@ -59,6 +61,11 @@ const create = async (req, res) => {
       }
 
       const createdRegion = await regionService.createService(regionData)
+
+      if (!createdRegion) {
+        return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar região' })
+      }
+
       user.regions = [createdRegion._id]
       await user.save()
 

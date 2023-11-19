@@ -1,5 +1,5 @@
-import { UserModel } from '../models/models'
-import { UserBodyTypes } from '../controller.user/index'
+import { UserModel } from '../../models/models'
+import { UserBodyTypes } from '../../controller/controller.user'
 
 const createService = (body: UserBodyTypes) => UserModel.create(body)
 
