@@ -1,3 +1,4 @@
+import mongoose from 'mongoose'
 import { RegionBodyTypes } from '../../controller/controller.regions'
 import { RegionModel } from '../../models/models'
 
@@ -34,22 +35,40 @@ const findRegionsWithinDistanceService = async (
   latitude: number,
   longitude: number,
   distanceInfo?: number,
+  includeAllRegions?: boolean,
 ) => {
-  const regions = await RegionModel.find({
-    owner: userId,
-    coordinatesRegion: {
-      $near: {
-        $geometry: {
-          type: 'Point',
-          coordinates: [longitude, latitude],
+  if (includeAllRegions) {
+    const regions = await RegionModel.find({
+      coordinatesRegion: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [longitude, latitude],
+          },
+          $maxDistance: distanceInfo,
         },
-        $maxDistance: distanceInfo,
       },
-    },
-  }).lean()
+    }).lean()
 
-  console.log('Regiões encontradas:', regions)
-  return regions
+    console.log('Regiões encontradas:', regions)
+    return regions
+  } else {
+    const regions = await RegionModel.find({
+      owner: new mongoose.Types.ObjectId(userId),
+      coordinatesRegion: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [longitude, latitude],
+          },
+          $maxDistance: distanceInfo,
+        },
+      },
+    }).lean()
+
+    console.log('Regiões encontradas:', regions)
+    return regions
+  }
 }
 
 export default {

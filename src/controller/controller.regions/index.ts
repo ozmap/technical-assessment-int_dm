@@ -167,10 +167,11 @@ const findRegionsByPointSpecific = async (req, res) => {
 
 const findRegionsWithinDistance = async (req, res) => {
   try {
-    const userId = req.user._id
+    const userId = String(req.query.userId)
     const latitude: number = parseFloat(req.query.latitude)
     const longitude: number = parseFloat(req.query.longitude)
     const distanceInfo: number = parseInt(req.query.distance) || 1000
+    const includeAllRegions: boolean = req.query.includeAllRegions === 'true'
 
     if (!latitude || !longitude || distanceInfo < 0) {
       return res.status(STATUS.BAD_REQUEST).send({
@@ -179,7 +180,13 @@ const findRegionsWithinDistance = async (req, res) => {
       })
     }
 
-    const regions = await regionService.findRegionsWithinDistanceService(userId, latitude, longitude, distanceInfo)
+    const regions = await regionService.findRegionsWithinDistanceService(
+      userId,
+      longitude,
+      latitude,
+      distanceInfo,
+      includeAllRegions,
+    )
 
     if (regions.length > 0) {
       return res.status(STATUS.OK).send({
