@@ -18,13 +18,6 @@ const createRegions = async (req, res) => {
       })
     }
 
-    const existingRegion = await RegionModel.findOne({ coordinatesRegion }).lean()
-    if (existingRegion) {
-      return res.status(STATUS.BAD_REQUEST).send({
-        message: 'Região já cadastrada',
-      })
-    }
-
     const region = await regionService.createService({
       nameRegion,
       owner,
@@ -33,14 +26,6 @@ const createRegions = async (req, res) => {
 
     if (!region) {
       return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar Região' })
-    }
-
-    const regionId = region._id
-    const user = await UserModel.findById(owner)
-
-    if (user) {
-      user.regions.push(regionId)
-      await user.save()
     }
 
     return res.status(STATUS.CREATED).send({
@@ -53,7 +38,9 @@ const createRegions = async (req, res) => {
       },
     })
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro no Servidor ao criar Usuário / Região : ' + error.message })
   }
 }
 
@@ -61,18 +48,20 @@ const findAllRegions = async (req, res) => {
   try {
     const { page, limit } = req.query
 
-    const [Regions, total] = await Promise.all([RegionModel.find().lean(), RegionModel.count()])
+    const { regions, total } = await regionService.findAllRegionsService()
 
     return res
       .json({
-        rows: Regions,
+        rows: regions,
         page,
         limit,
         total,
       })
       .status(STATUS.OK)
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro no servidor ao pesquisar todas regiões: ' + error.message })
   }
 }
 
@@ -80,7 +69,7 @@ const findByIdRegions = async (req, res) => {
   try {
     const { id } = req.params
 
-    const region = await RegionModel.findOne({ _id: id }).lean()
+    const region = await regionService.findByIdRegionsService(id)
 
     if (!region) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
@@ -88,7 +77,9 @@ const findByIdRegions = async (req, res) => {
 
     return res.status(STATUS.OK).json({ region })
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro no servidor ao realizar pesquisa por ID: ' + error.message })
   }
 }
 
@@ -97,26 +88,13 @@ const updateRegions = async (req, res) => {
     const { id } = req.params
     const { nameRegion, owner, coordinatesRegion }: RegionBodyTypes = req.body
 
-    const region = await RegionModel.findOne({ _id: id }).lean()
-
-    if (!region) {
-      return res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
-      return
-    }
-
-    const oldOwnerId = (region.owner as { _id?: string })?._id
-
     const updatedRegion = await regionService.updateRegionsService(id, nameRegion, owner, coordinatesRegion)
-
-    if (oldOwnerId && oldOwnerId !== owner) {
-      await UserModel.findByIdAndUpdate(oldOwnerId, { $pull: { regions: id } })
-    }
-
-    await UserModel.findByIdAndUpdate(owner, { $addToSet: { regions: id } })
 
     return res.status(STATUS.UPDATED).json({ message: 'Atualização feita com sucesso' })
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro de servidor para atualizar dado(s) da região: ' + error.message })
   }
 }
 
@@ -124,17 +102,13 @@ const deleteByIdRegions = async (req, res) => {
   try {
     const { id } = req.params
 
-    const region = await RegionModel.findOne({ _id: id })
-
-    if (!region) {
-      return res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
-    }
-
-    await RegionModel.deleteOne({ _id: id })
+    await regionService.deleteByIdRegionsService(id)
 
     return res.status(STATUS.OK).json({ message: 'Região excluída com sucesso' })
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro de servidor ao deletar região: ' + error.message })
   }
 }
 
@@ -157,11 +131,13 @@ const findRegionsByPointSpecific = async (req, res) => {
       })
     } else {
       return res.status(STATUS.NOT_FOUND).send({
-        message: 'Lugar correto -->Nenhuma região encontrada!',
+        message: 'Nenhuma região encontrada!',
       })
     }
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro de servidor ao listar regiões por ponto específico: ' + error.message })
   }
 }
 
@@ -195,11 +171,13 @@ const findRegionsWithinDistance = async (req, res) => {
       })
     } else {
       return res.status(STATUS.NOT_FOUND).send({
-        message: 'AQUI --> Nenhuma região encontrada dentro da distância especificada.',
+        message: 'Nenhuma região encontrada dentro da distância especificada.',
       })
     }
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({
+      message: 'Erro de servidor ao listar regiões por distância informada do ponto específico:' + error.message,
+    })
   }
 }
 

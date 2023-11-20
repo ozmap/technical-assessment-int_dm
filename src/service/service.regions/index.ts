@@ -1,33 +1,110 @@
 import mongoose from 'mongoose'
 import { RegionBodyTypes } from '../../controller/controller.regions'
-import { RegionModel } from '../../models/models'
+import { RegionModel, UserModel } from '../../models/models'
 
-const createService = (body: RegionBodyTypes) => RegionModel.create(body)
+const createService = async (body: RegionBodyTypes) => {
+  let region: any
+  try {
+    region = await RegionModel.create(body)
 
-const findAllRegionsService = () => RegionModel.find()
+    await UserModel.updateOne({ _id: body.owner }, { $push: { regions: region._id } })
+  } catch (error) {
+    if (region) {
+      await RegionModel.findByIdAndDelete(region._id)
+    }
+    throw new Error(`Erro ao criar região: ${error.message}`)
+  }
+  return region
+}
 
-const findByIdRegionsService = (id: string) => RegionModel.findById(id)
+const findAllRegionsService = async () => {
+  try {
+    const regions = await RegionModel.find().lean()
+    const total = await RegionModel.countDocuments()
+    return { regions, total }
+  } catch (error) {
+    throw new Error(`Erro ao buscar todas as regiões: ${error.message}`)
+  }
+}
 
-const updateRegionsService = (id: string, nameRegion: string, owner: string, coordinatesRegion: [number, number]) =>
-  RegionModel.findOneAndUpdate({ _id: id }, { nameRegion, owner, coordinatesRegion }).catch((error) => {
+const findByIdRegionsService = async (id: string) => {
+  try {
+    const region = await RegionModel.findById(id).lean()
+
+    return region
+  } catch (error) {
+    throw new Error(`Erro ao buscar região por ID: ${error.message}`)
+  }
+}
+
+const updateRegionsService = async (
+  id: string,
+  nameRegion: string,
+  owner: string,
+  coordinatesRegion: [number, number],
+) => {
+  try {
+    const region = await RegionModel.findOne({ _id: id }).lean()
+
+    if (!region) {
+      throw new Error('Região não encontrada')
+    }
+
+    const oldOwnerId = (region.owner as { _id?: string })?._id
+
+    const updatedRegion = await RegionModel.findOneAndUpdate({ _id: id }, { nameRegion, owner, coordinatesRegion })
+
+    if (oldOwnerId && oldOwnerId !== owner) {
+      await UserModel.findByIdAndUpdate(oldOwnerId, { $pull: { regions: id } })
+    }
+
+    await UserModel.findByIdAndUpdate(owner, { $addToSet: { regions: id } })
+
+    return updatedRegion
+  } catch (error) {
     throw new Error(`Erro no serviço de atualização: ${error.message}`)
-  })
+  }
+}
 
-const deleteByIdRegionsService = (regionId) => RegionModel.deleteOne(regionId)
+const deleteByIdRegionsService = async (regionId) => {
+  try {
+    const region = await RegionModel.findOne({ _id: regionId })
 
-const findByPointSpecificService = async (latitude: number, longitude: number) => {
-  const regions = await RegionModel.find({
-    coordinatesRegion: {
-      $geoIntersects: {
-        $geometry: {
-          type: 'Point',
-          coordinates: [longitude, latitude],
+    if (!region) {
+      throw new Error('Região não encontrada')
+    }
+
+    const ownerId = region.owner
+
+    await RegionModel.deleteOne({ _id: regionId })
+
+    if (ownerId) {
+      await UserModel.findByIdAndUpdate(ownerId, { $pull: { regions: regionId } })
+    }
+
+    return { message: 'Região excluída com sucesso' }
+  } catch (error) {
+    throw new Error(`Erro no serviço ao excluir região: ${error.message}`)
+  }
+}
+
+const findByPointSpecificService = async (longitude: number, latitude: number) => {
+  try {
+    const regions = await RegionModel.find({
+      coordinatesRegion: {
+        $geoIntersects: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [longitude, latitude],
+          },
         },
       },
-    },
-  }).lean()
+    }).lean()
 
-  return regions
+    return regions
+  } catch (error) {
+    throw new Error(`Erro no serviço de listar regiões por ponto específico : ${error.message}`)
+  }
 }
 
 const findRegionsWithinDistanceService = async (
@@ -37,37 +114,39 @@ const findRegionsWithinDistanceService = async (
   distanceInfo?: number,
   includeAllRegions?: boolean,
 ) => {
-  if (includeAllRegions) {
-    const regions = await RegionModel.find({
-      coordinatesRegion: {
-        $near: {
-          $geometry: {
-            type: 'Point',
-            coordinates: [longitude, latitude],
+  try {
+    if (includeAllRegions) {
+      const regions = await RegionModel.find({
+        coordinatesRegion: {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [longitude, latitude],
+            },
+            $maxDistance: distanceInfo,
           },
-          $maxDistance: distanceInfo,
         },
-      },
-    }).lean()
+      }).lean()
 
-    console.log('Regiões encontradas:', regions)
-    return regions
-  } else {
-    const regions = await RegionModel.find({
-      owner: new mongoose.Types.ObjectId(userId),
-      coordinatesRegion: {
-        $near: {
-          $geometry: {
-            type: 'Point',
-            coordinates: [longitude, latitude],
+      return regions
+    } else {
+      const regions = await RegionModel.find({
+        owner: new mongoose.Types.ObjectId(userId),
+        coordinatesRegion: {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [longitude, latitude],
+            },
+            $maxDistance: distanceInfo,
           },
-          $maxDistance: distanceInfo,
         },
-      },
-    }).lean()
+      }).lean()
 
-    console.log('Regiões encontradas:', regions)
-    return regions
+      return regions
+    }
+  } catch (error) {
+    throw new Error(`Erro no serviço de listar regiões a uma certa distância de um ponto : ${error.message}`)
   }
 }
 
