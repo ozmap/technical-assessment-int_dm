@@ -1,5 +1,5 @@
 import { RegionModel, UserModel } from '../db/models';
-import customError from '../errors/error';
+import CustomError from '../errors/error';
 import { RegionRequestBody } from '../types/region.types';
 
 const getAllRegions = async (page: number, limit: number) => {
@@ -21,7 +21,7 @@ const getRegionById = async (id: string) => {
   const region = await RegionModel.findOne({ _id: id }).populate('user');
 
   if (!region) {
-    throw customError({
+    throw new CustomError({
       name: 'NOT_FOUND',
       statusCode: 404,
       message: `Nenhuma região foi encontrada com o id ${id}`,
@@ -59,12 +59,19 @@ const getRegionsByDistance = async (lng: number, lat: number, distance: number, 
     },
   });
 
+  if (!regions.length) {
+    throw new CustomError({
+      name: 'NOT_FOUND',
+      statusCode: 404,
+      message: 'Nenhuma região foi encontrada nesse raio',
+    });
+  }
+
   if (userId) {
     const filteredRegions = regions.filter((region) => region.user === userId);
-    console.log(filteredRegions);
 
     if (!filteredRegions.length) {
-      throw customError({
+      throw new CustomError({
         name: 'NOT_FOUND',
         statusCode: 404,
         message: 'Nenhuma região pertence a esse usuário',
@@ -81,17 +88,17 @@ const createRegion = async ({ name, coordinates, user }: RegionRequestBody) => {
   const verifyUser = await UserModel.findById(user);
 
   if (!verifyUser) {
-    throw customError({
-      name: 'BAD_REQUEST',
-      statusCode: 400,
-      message: 'Insira um id de usuário válido',
+    throw new CustomError({
+      name: 'NOT_FOUND',
+      statusCode: 404,
+      message: 'Nenhum usuário foi encontrado com esse id',
     });
   }
 
   const verifyRegion = await RegionModel.findOne({ coordinates: [coordinates.lng, coordinates.lat] });
 
   if (verifyRegion) {
-    throw customError({
+    throw new CustomError({
       name: 'UNPROCESSABLE_ENTITY',
       statusCode: 422,
       message: 'Essa região já está cadastrada',
@@ -111,7 +118,7 @@ const updateRegion = async (region: RegionRequestBody, id: string) => {
   const verifyRegion = await RegionModel.findOne({ _id: id });
 
   if (!verifyRegion) {
-    throw customError({
+    throw new CustomError({
       name: 'NOT_FOUND',
       statusCode: 404,
       message: `Nenhuma região foi encontrada com o id ${id}`,
@@ -121,9 +128,9 @@ const updateRegion = async (region: RegionRequestBody, id: string) => {
   const verifyUser = await UserModel.findOne({ _id: region.user });
 
   if (!verifyUser) {
-    throw customError({
-      name: 'BAD_REQUEST',
-      statusCode: 400,
+    throw new CustomError({
+      name: 'UNPROCESSABLE_ENTITY',
+      statusCode: 422,
       message: 'Insira um id de usuário válido',
     });
   }
@@ -147,7 +154,7 @@ const deleteRegion = async (id: string) => {
   const verifyRegion = await RegionModel.findOne({ _id: id });
 
   if (!verifyRegion) {
-    throw customError({
+    throw new CustomError({
       name: 'NOT_FOUND',
       statusCode: 404,
       message: `Nenhuma região foi encontrada com o id ${id}`,

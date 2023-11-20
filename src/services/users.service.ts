@@ -1,8 +1,8 @@
-import customError from '../errors/error';
 import { UserModel } from '../db/models';
 import geoLibIntegration from './geoLib.integration';
 import { NewUser, UserRequestBody } from '../types/user.types';
 import formatAddress from '../utils/formatAddress';
+import CustomError from '../errors/error';
 
 const getAllUsers = async (page: number, limit: number) => {
   const [users, total] = await Promise.all([
@@ -23,7 +23,7 @@ const getUserById = async (id: string) => {
   const user = await UserModel.findOne({ _id: id }).populate('regions');
 
   if (!user) {
-    throw customError({
+    throw new CustomError({
       name: 'NOT_FOUND',
       statusCode: 404,
       message: `Nenhum usuário foi encontrado com o id ${id}`,
@@ -37,10 +37,10 @@ const updateUserById = async (id: string, update: UserRequestBody) => {
   const user = await UserModel.findOne({ _id: id });
 
   if (!user) {
-    throw customError({
-      name: 'BAD_REQUEST',
-      statusCode: 400,
-      message: 'Id de usuário inválido',
+    throw new CustomError({
+      name: 'NOT_FOUND',
+      statusCode: 404,
+      message: `Nenhum usuário foi encontrado com o id ${id}`,
     });
   }
 
@@ -70,7 +70,7 @@ const createUser = async (user: UserRequestBody) => {
   const verifyNewUser = await UserModel.findOne({ email: user.email });
 
   if (verifyNewUser) {
-    throw customError({
+    throw new CustomError({
       name: 'UNPROCESSABLE_ENTITY',
       statusCode: 422,
       message: 'Email já está cadastrado',
@@ -106,7 +106,7 @@ const deleteUser = async (id: string) => {
   const user = await UserModel.findByIdAndDelete({ _id: id });
 
   if (!user) {
-    throw customError({
+    throw new CustomError({
       name: 'NOT_FOUND',
       statusCode: 404,
       message: `Nenhum usuário foi encontrado com o id ${id}`,

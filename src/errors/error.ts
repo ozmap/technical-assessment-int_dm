@@ -1,9 +1,13 @@
-export interface CustomError extends Error {
+export interface CustomErrorInterface extends Error {
   statusCode?: number;
 }
+class CustomError extends Error {
+  statusCode?: number;
 
-const customError = ({ statusCode, message }: CustomError) => {
-  return Object.assign(new Error(message), { statusCode });
-};
+  constructor({ statusCode, message }: CustomErrorInterface) {
+    super(message);
+    this.statusCode = statusCode;
+  }
+}
 
-export default customError;
+export default CustomError;

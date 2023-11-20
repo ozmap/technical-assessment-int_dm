@@ -1,14 +1,14 @@
-import * as app from 'express';
+import express from 'express';
 import './db/database';
 import errorMiddleware from './middlewares/error.middleware';
 import usersRoute from './routes/users.route';
 import regionsRoute from './routes/regions.route';
 
-const PORT = process.env.API_PORT;
+const PORT = process.env.API_PORT || 3002;
 
-const server = app();
+const server = express();
 
-server.use(app.json());
+server.use(express.json());
 
 server.use('/users', usersRoute);
 server.use('/regions', regionsRoute);

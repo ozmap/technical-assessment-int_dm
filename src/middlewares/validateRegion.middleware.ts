@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { regionSchema } from './joi.schemas';
-import customError from '../errors/error';
 import { RegionRequestBody } from '../types/region.types';
+import CustomError from '../errors/error';
 
 const validateRegion = (req: Request, _res: Response, next: NextFunction) => {
   try {
@@ -10,17 +10,17 @@ const validateRegion = (req: Request, _res: Response, next: NextFunction) => {
     const { error } = regionSchema.validate(region);
 
     if (error) {
-      throw customError({
-        name: 'BAD_REQUEST',
-        statusCode: 400,
+      throw new CustomError({
+        name: 'UNPROCESSABLE_ENTITY',
+        statusCode: 422,
         message: error.message,
       });
     }
 
-    if (typeof region.coordinates.lng !== 'number' || typeof region.coordinates.lat !== 'number') {
-      throw customError({
-        name: 'BAD_REQUEST',
-        statusCode: 400,
+    if (typeof region?.coordinates?.lng === 'string' || typeof region?.coordinates?.lat === 'string') {
+      throw new CustomError({
+        name: 'UNPROCESSABLE_ENTITY',
+        statusCode: 422,
         message: 'Informe coordenadas com latitude e longitude em formato numérico',
       });
     }
