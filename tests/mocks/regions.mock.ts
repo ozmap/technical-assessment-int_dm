@@ -4,6 +4,7 @@ const region = {
   _id: faker.database.mongodbObjectId(),
   name: faker.string.alpha(),
   user: faker.database.mongodbObjectId(),
+  coordinates: [faker.location.longitude(), faker.location.latitude()],
   createdAt: faker.date.past(),
   updatedAt: faker.date.recent(),
   __v: faker.number.int(),
