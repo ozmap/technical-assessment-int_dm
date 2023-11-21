@@ -96,7 +96,7 @@ const findByPointSpecificService = async (longitude: number, latitude: number) =
   try {
     const regions = await RegionModel.find({
       coordinatesRegion: {
-        $geoIntersects: {
+        $near: {
           $geometry: {
             type: 'Point',
             coordinates: [longitude, latitude],

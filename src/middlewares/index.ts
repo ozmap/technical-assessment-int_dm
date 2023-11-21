@@ -9,6 +9,11 @@ const geocoder = NodeGeocoder(geocoderOptions)
 
 export const filterUser = async (req, res, next) => {
   const { addressUser, coordinatesUser } = req.body
+  const id = req.params
+
+  if (!addressUser && !coordinatesUser && id != '') {
+    return next()
+  }
 
   if ((addressUser && coordinatesUser) || (!addressUser && !coordinatesUser)) {
     return res.status(STATUS.BAD_REQUEST).json({ error: 'Informe apenas o endereço ou as coordenadas' })
