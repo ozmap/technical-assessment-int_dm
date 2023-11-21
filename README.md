@@ -25,9 +25,17 @@ Desenvolver uma API RESTful robusta voltada para gerenciamento de usuários e lo
 
 1. Clone o repositório para sua máquina utilizando o comando:
 
-   `git@github.com:leonardocbrand/ozmap-challenge.git`
+   `git clone git@github.com:leonardocbrand/ozmap-challenge.git`
 
-2. Após finalizar o download, abra a pasta **/app** e crie um arquivo **.env** contendo as mesmas variáveis de ambiente presentes no arquivo **.env.example**, ou use os dados do exemplo abaixo:
+2. Troque para a branch **leonardo-brandao** utilizando o comando:
+
+   `git checkout leonardo-brandao`
+
+3. Entre na pasta do repositório e instale as dependências utilizando o comando:
+
+`npm install`
+
+4. Crie um arquivo **.env** contendo as mesmas variáveis de ambiente presentes no arquivo **.env.example**, ou use os dados do exemplo abaixo:
 <pre>
 <code>DB_PORT=27017
 API_PORT=3001 
@@ -37,11 +45,13 @@ GOOGLE_GEOCODING_URL=https://maps.googleapis.com/maps/api/geocode/json?address=
 GOOGLE_API_KEY=AIzaSyCOzyNvyVumnu8GmujVFfqr4WX2IUMdWVQ
 </code></pre>
 
-3. Abra um terminal na **pasta do repositório** e execute o comando <code>docker-compose up</code>;
+5. Abra um terminal na **raiz do repositório** e execute o comando <code>docker-compose up</code>;
 
-4. Aguarde todos os contêineres ficarem de pé;
+6. Aguarde todos os contêineres ficarem de pé;
 
-5. Após isso, você poderá acessar a API localmente através do localhost na porta escolhida na variável de ambiente PORT.
+7. Após isso, você poderá acessar a API localmente através do localhost na porta escolhida na variável de ambiente PORT.
+
+<code>docker logs -f ozmap-api</code>
 
 ## 📷 Preview:
 
@@ -77,3 +87,7 @@ GOOGLE_API_KEY=AIzaSyCOzyNvyVumnu8GmujVFfqr4WX2IUMdWVQ
 - Cada região deve possuir um nome, coordenadas e um usuário que será designado como proprietário da região.
 - Possibilitar a listagem de regiões contendo um ponto específico.
 - Permitir a listagem de regiões a uma certa distância de um ponto, oferecendo a opção de filtrar as regiões não pertencentes ao usuário que fez a requisição.
+
+## Postman
+
+Caso prefira realizar as requisições usando o Postman, na raíz do projeto há um arquivo chamado `postmanCollection.json` para importar as collections com todas as requisições.
