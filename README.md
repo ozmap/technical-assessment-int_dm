@@ -29,7 +29,8 @@ Desenvolver uma API RESTful robusta voltada para gerenciamento de usuários e lo
 
 2. Após finalizar o download, abra a pasta **/app** e crie um arquivo **.env** contendo as mesmas variáveis de ambiente presentes no arquivo **.env.example**, ou use os dados do exemplo abaixo:
 <pre>
-<code>PORT=3001 
+<code>DB_PORT=27017
+API_PORT=3001 
 MONGODB_URI=mongodb://db:27017/oz-tech-test?authSource=admin
 GOOGLE_GEOCODING_REVERSE_URL=https://maps.googleapis.com/maps/api/geocode/json?latlng=
 GOOGLE_GEOCODING_URL=https://maps.googleapis.com/maps/api/geocode/json?address=
