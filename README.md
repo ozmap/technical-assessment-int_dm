@@ -1,4 +1,4 @@
-# 🛒 Desafio Ozmap
+# 🛒 Desafio OZmap
 
 # 🎯Objetivo:
 

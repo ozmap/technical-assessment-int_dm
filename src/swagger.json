@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Ozmap API",
+    "title": "OZmap Challenge API",
     "description": "API RESTful robusta para gerenciar usuários e localizações.",
     "version": "1.0.0",
     "contact": {
