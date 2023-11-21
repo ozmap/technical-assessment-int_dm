@@ -64,12 +64,21 @@ describe('Testing region controller', function () {
         limit: '10',
       };
 
-      sinon.stub(regionsService, 'getAllRegions').resolves(regionsMock.regions2 as RegionsTestType);
+      sinon.stub(regionsService, 'getAllRegions').rejects(
+        new CustomError({
+          name: 'NOT_FOUND',
+          statusCode: 404,
+          message: 'Não há nenhuma região cadastrada neste intervalo',
+        }),
+      );
 
       await regionsController.getAllRegions(req, res, nextFunction);
 
-      expect(res.status).to.have.been.calledWith(200);
-      expect(res.json).to.have.been.calledWith(regionsMock.regions2 as RegionsTestType);
+      expect(nextFunction).to.have.been.calledWith(sinon.match.instanceOf(CustomError));
+      expect(nextFunction).to.have.been.calledWith(sinon.match.has('statusCode', 404));
+      expect(nextFunction).to.have.been.calledWith(
+        sinon.match.has('message', 'Não há nenhuma região cadastrada neste intervalo'),
+      );
     });
   });
 
@@ -133,6 +142,27 @@ describe('Testing region controller', function () {
           message: 'Regiões obtidas com sucesso',
           data: [regionsMock.regionPopulatedUser],
         });
+      });
+
+      it('Testing when throws error 500', async function () {
+        req.params = {
+          lng: '10000',
+          lat: '10000',
+        };
+
+        sinon.stub(regionsService, 'getRegionsBySpecificPoint').rejects(
+          new CustomError({
+            name: 'INTERNAL_SERVER_ERROR',
+            statusCode: 500,
+            message:
+              'invalid point in geo near query $geometry argument: { type: "Point", coordinates: [ 1000, 1000 ] }  Longitude/latitude is out of bounds, lng: 1000 lat: 1000',
+          }),
+        );
+
+        await regionsController.getRegionsBySpecificPoint(req, res, nextFunction);
+
+        expect(nextFunction).to.have.been.calledWith(sinon.match.instanceOf(CustomError));
+        expect(nextFunction).to.have.been.calledWith(sinon.match.has('statusCode', 500));
       });
 
       it('Testing when there is no region registered', async function () {

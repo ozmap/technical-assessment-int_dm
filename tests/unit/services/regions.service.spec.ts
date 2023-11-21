@@ -39,7 +39,7 @@ describe('Testing regions service', function () {
       expect(result).to.have.property('total');
     });
 
-    it('Should return an object with message, data, page, limit and total properties when there is no region in the database', async function () {
+    it('Should return an error menssage when there is no region in the database', async function () {
       sinon
         .mock(RegionModel)
         .expects('find')
@@ -50,15 +50,10 @@ describe('Testing regions service', function () {
         });
       sinon.stub(RegionModel, 'count').resolves(0);
 
-      const result = await regionsService.getAllRegions(1, 10);
-
-      expect(result).to.have.property('message');
-      expect(result.message).to.be.equal('Não há nenhuma região cadastrada neste intervalo');
-      expect(result).to.have.property('data');
-      expect(result.data).to.be.deep.equal([]);
-      expect(result).to.have.property('page');
-      expect(result).to.have.property('limit');
-      expect(result).to.have.property('total');
+      await expect(regionsService.getAllRegions(1, 10)).to.be.rejectedWith(
+        CustomError,
+        'Não há nenhuma região cadastrada neste intervalo',
+      );
     });
   });
 

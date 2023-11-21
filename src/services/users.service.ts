@@ -13,7 +13,11 @@ const getAllUsers = async (page: number, limit: number) => {
   ]);
 
   if (!users.length) {
-    return { message: 'Não há nenhum usuário cadastrado neste intervalo', data: users, page, limit, total };
+    throw new CustomError({
+      name: 'NOT_FOUND',
+      statusCode: 404,
+      message: 'Não há nenhum usuário cadastrado neste intervalo',
+    });
   }
 
   return { message: 'Usuários obtidos com sucesso', data: users, page, limit, total };

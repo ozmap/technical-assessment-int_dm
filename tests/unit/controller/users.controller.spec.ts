@@ -64,12 +64,21 @@ describe('Testing users controller', function () {
         limit: '10',
       };
 
-      sinon.stub(usersService, 'getAllUsers').resolves(usersMock.getAllUsersMock2 as UsersTestType);
+      sinon.stub(usersService, 'getAllUsers').rejects(
+        new CustomError({
+          name: 'NOT_FOUND',
+          statusCode: 404,
+          message: 'Não há nenhum usuário cadastrado neste intervalo',
+        }),
+      );
 
       await usersController.getAllUsers(req, res, nextFunction);
 
-      expect(res.status).to.have.been.calledWith(200);
-      expect(res.json).to.have.been.calledWith(usersMock.getAllUsersMock2);
+      expect(nextFunction).to.have.been.calledWith(sinon.match.instanceOf(CustomError));
+      expect(nextFunction).to.have.been.calledWith(sinon.match.has('statusCode', 404));
+      expect(nextFunction).to.have.been.calledWith(
+        sinon.match.has('message', 'Não há nenhum usuário cadastrado neste intervalo'),
+      );
     });
   });
 

@@ -53,15 +53,10 @@ describe('Testing user service', function () {
 
       sinon.stub(UserModel, 'count').resolves(0);
 
-      const serviceResponse = await usersService.getAllUsers(1, 10);
-
-      expect(serviceResponse).to.be.an('object');
-      expect(serviceResponse).to.have.property('message');
-      expect(serviceResponse.message).to.be.equal('Não há nenhum usuário cadastrado neste intervalo');
-      expect(serviceResponse).to.have.property('data');
-      expect(serviceResponse).to.have.property('page');
-      expect(serviceResponse).to.have.property('limit');
-      expect(serviceResponse).to.have.property('total');
+      await expect(usersService.getAllUsers(1, 10)).to.be.rejectedWith(
+        CustomError,
+        'Não há nenhum usuário cadastrado neste intervalo',
+      );
     });
   });
 

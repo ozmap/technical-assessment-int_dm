@@ -11,7 +11,11 @@ const getAllRegions = async (page: number, limit: number) => {
   ]);
 
   if (!regions.length) {
-    return { message: 'Não há nenhuma região cadastrada neste intervalo', data: regions, page, limit, total };
+    throw new CustomError({
+      name: 'NOT_FOUND',
+      statusCode: 404,
+      message: 'Não há nenhuma região cadastrada neste intervalo',
+    });
   }
 
   return { message: 'Regiões obtidas com sucesso', data: regions, page, limit, total };
