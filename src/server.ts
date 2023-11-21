@@ -3,12 +3,16 @@ import './db/database';
 import errorMiddleware from './middlewares/error.middleware';
 import usersRoute from './routes/users.route';
 import regionsRoute from './routes/regions.route';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocs from './swagger.json';
 
 const PORT = process.env.API_PORT || 3002;
 
 const server = express();
 
 server.use(express.json());
+
+server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 server.use('/users', usersRoute);
 server.use('/regions', regionsRoute);

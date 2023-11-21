@@ -10,7 +10,7 @@ import server from '../../../src/server';
 
 chai.use(sinonChai);
 
-describe('Testing users route', function () {
+describe('Testing regions route', function () {
   let user;
   let region;
   let session;
@@ -185,7 +185,7 @@ describe('Testing users route', function () {
 
   it('Testing GET /regions/distance route filtering regions by user', async function () {
     const response = await supertest(server).get(
-      `/regions/distance?lng=-4.08&lat=-2.781&distance=10000000&user=${user._id}`,
+      `/regions/distance?lng=-4.08&lat=-2.781&distance=1000000000&user=${user._id}`,
     );
 
     expect(response).to.have.property('status', 200);
