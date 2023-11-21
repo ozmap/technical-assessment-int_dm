@@ -54,8 +54,6 @@ describe('Testing regions route', function () {
   it('Testing GET /regions route', async function () {
     const response = await supertest(server).get('/regions');
 
-    console.log(response);
-
     expect(response).to.have.property('status', 200);
     expect(response).to.have.property('body');
     expect(response.body).to.have.property('data');
