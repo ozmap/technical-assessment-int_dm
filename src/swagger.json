@@ -921,6 +921,107 @@
           }
         }
       }
+    },
+    "/export/users": {
+      "get": {
+        "tags": ["Export"],
+        "summary": "Exporta usuários",
+        "description": "Exporta usuários em formato CSV",
+        "produces": ["text/csv"],
+        "responses": {
+          "200": {
+            "description": "Usuários exportados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Usuários exportados com sucesso"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhum usuário encontrado para exportar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Não foi possível exportar pois não há usuários cadastrados"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao exportar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "message": { "type": "string", "example": "Erro inesperado ao montar o arquivo" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/export/regions": {
+      "get": {
+        "tags": ["Export"],
+        "summary": "Exporta regiões",
+        "description": "Exporta regiões em formato CSV",
+        "produces": ["text/csv"],
+        "responses": {
+          "200": {
+            "description": "Regiões exportadas com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "message": { "type": "string", "example": "Regiões exportadas com sucesso" } }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Nenhuma região encontrada para exportar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Não foi possível exportar pois não há regiões cadastradas"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro ao exportar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "message": { "type": "string", "example": "Erro inesperado ao montar o arquivo" } }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
