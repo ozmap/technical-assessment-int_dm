@@ -5,14 +5,6 @@ import CustomError from '../errors/error';
 
 const exportToCsv = async <T>(data: T, route: string, fields: string[]) => {
   try {
-    const ifFolderExists = await fs.stat(path.resolve(__dirname, '..', 'exports'));
-
-    console.log(ifFolderExists);
-    const deleteFolder = await fs.rmdir(path.resolve(__dirname, '..', 'exports'), {
-      recursive: true,
-    });
-    const createFolder = await fs.mkdir(path.resolve(__dirname, '..', 'exports'));
-
     const csv = await json2csv.parseAsync(data, { fields });
     const filename = `${route.toUpperCase()}_${new Date().getTime()}.csv`;
     const pathname = path.resolve(__dirname, '..', 'exports', filename);
