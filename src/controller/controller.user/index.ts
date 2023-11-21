@@ -1,6 +1,4 @@
-import { UserModel } from '../../models/models'
 import userService from '../../service/service.user'
-import regionService from '../../service/service.regions'
 
 export const STATUS = {
   OK: 200,
@@ -28,17 +26,9 @@ const create = async (req, res) => {
   try {
     const { nameUser, email, addressUser, coordinatesUser, region }: UserBodyTypes = req.body
 
-    if (!nameUser || !email) {
+    if (!nameUser || !email || !addressUser || !coordinatesUser) {
       return res.status(STATUS.BAD_REQUEST).send({
-        message: 'Preencha os campos Nome e E-mail corretamente para efetuar o cadastro',
-      })
-    }
-
-    const existingUser = await UserModel.findOne({ email }).lean()
-
-    if (existingUser) {
-      return res.status(STATUS.BAD_REQUEST).send({
-        message: 'Usuário com esse e-mail já cadastrado',
+        message: 'Preencha todos os campos obrigatórios para efetuar o cadastro',
       })
     }
 
@@ -47,53 +37,27 @@ const create = async (req, res) => {
       email,
       addressUser,
       coordinatesUser,
+      region,
     })
 
-    if (!user) {
-      return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar usuário' })
-    }
-
-    if (region) {
-      const regionData = {
-        nameRegion: region.nameRegion,
-        owner: user._id,
-        coordinatesRegion: region.coordinatesRegion,
-      }
-
-      const createdRegion = await regionService.createService(regionData)
-
-      if (!createdRegion) {
-        return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar região' })
-      }
-
-      user.regions = [createdRegion._id]
-      await user.save()
-
-      return res.status(STATUS.CREATED).send({
-        message: 'Usuário e região criados com sucesso!',
+    if (user) {
+      const responseData = {
+        message: region ? 'Usuário e região criados com sucesso!' : 'Usuário criado com sucesso!',
         user: {
           id: user._id,
           nameUser,
           email,
           addressUser,
           coordinatesUser,
-          regions: [createdRegion._id],
+          regions: user.regions || [],
         },
-      })
+      }
+      return res.status(STATUS.CREATED).send(responseData)
     }
-
-    return res.status(STATUS.CREATED).send({
-      message: 'Usuário criado com sucesso!',
-      user: {
-        id: user._id,
-        nameUser,
-        email,
-        addressUser,
-        coordinatesUser,
-      },
-    })
   } catch (error) {
-    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro no Servidor ao criar Usuário: ' + error.message })
   }
 }
 
@@ -101,7 +65,7 @@ const findAll = async (req, res) => {
   try {
     const { page, limit } = req.query
 
-    const [users, total] = await Promise.all([UserModel.find().lean(), UserModel.count()])
+    const { users, total } = await userService.findAllService()
 
     return res
       .json({
@@ -112,7 +76,9 @@ const findAll = async (req, res) => {
       })
       .status(STATUS.OK)
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro no servidor ao pesquisar todos usuários : ' + error.message })
   }
 }
 
@@ -120,15 +86,17 @@ const findById = async (req, res) => {
   try {
     const { id } = req.params
 
-    const user = await UserModel.findOne({ _id: id }).lean()
+    const user = await userService.findByIdService(id)
 
     if (!user) {
-      res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
+      return res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
     }
 
     return res.status(STATUS.OK).json({ user })
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro no servidor ao realizar pesquisa de usuário por ID: ' + error.message })
   }
 }
 
@@ -137,18 +105,17 @@ const update = async (req, res) => {
     const { id } = req.params
     const { nameUser, email, addressUser, coordinatesUser }: UserBodyTypes = req.body
 
-    const user = await UserModel.findOne({ _id: id }).lean()
+    const updated = await userService.updateService(id, nameUser, email, addressUser, coordinatesUser)
 
-    if (!user) {
-      res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
-      return
+    if (!updated) {
+      return res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
     }
 
-    await userService.updateService(id, nameUser, email, addressUser, coordinatesUser)
-
-    return res.status(STATUS.UPDATED).json({ message: 'Atualização feita com sucesso' })
+    return res.status(STATUS.UPDATED).json({ message: 'Atualização do usuário feito com sucesso' })
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res
+      .status(STATUS.INTERNAL_SERVER_ERROR)
+      .send({ message: 'Erro de servidor para atualizar dado(s) do usuário: ' + error.message })
   }
 }
 
@@ -156,23 +123,15 @@ const deleteById = async (req, res) => {
   try {
     const { id } = req.params
 
-    const user = await UserModel.findOne({ _id: id })
+    const deleted = await userService.deleteByIdService(id)
 
-    if (!user) {
+    if (!deleted) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
     }
 
-    if (user.regions && user.regions.length > 0) {
-      return res.status(STATUS.BAD_REQUEST).json({
-        message: 'Usuário ainda é proprietário de região(ões), por esse motivo não pode ser excluído.',
-      })
-    }
-
-    await UserModel.deleteOne({ _id: id })
-
     return res.status(STATUS.OK).json({ message: 'Usuário excluído com sucesso' })
   } catch (error) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
   }
 }
 

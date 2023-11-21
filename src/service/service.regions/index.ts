@@ -3,7 +3,7 @@ import { RegionBodyTypes } from '../../controller/controller.regions'
 import { RegionModel, UserModel } from '../../models/models'
 
 const createService = async (body: RegionBodyTypes) => {
-  let region: any
+  let region
   try {
     region = await RegionModel.create(body)
 
@@ -52,7 +52,11 @@ const updateRegionsService = async (
 
     const oldOwnerId = (region.owner as { _id?: string })?._id
 
-    const updatedRegion = await RegionModel.findOneAndUpdate({ _id: id }, { nameRegion, owner, coordinatesRegion })
+    const updatedRegion = await RegionModel.findOneAndUpdate(
+      { _id: id },
+      { nameRegion, owner, coordinatesRegion },
+      { new: true, runValidators: true },
+    )
 
     if (oldOwnerId && oldOwnerId !== owner) {
       await UserModel.findByIdAndUpdate(oldOwnerId, { $pull: { regions: id } })
@@ -82,7 +86,7 @@ const deleteByIdRegionsService = async (regionId) => {
       await UserModel.findByIdAndUpdate(ownerId, { $pull: { regions: regionId } })
     }
 
-    return { message: 'Região excluída com sucesso' }
+    return { message: 'Região excluída' }
   } catch (error) {
     throw new Error(`Erro no serviço ao excluir região: ${error.message}`)
   }

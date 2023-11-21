@@ -1,5 +1,4 @@
 import { STATUS } from '../controller.user/index'
-import { RegionModel, UserModel } from '../../models/models'
 import regionService from '../../service/service.regions'
 
 export interface RegionBodyTypes {
@@ -79,7 +78,7 @@ const findByIdRegions = async (req, res) => {
   } catch (error) {
     return res
       .status(STATUS.INTERNAL_SERVER_ERROR)
-      .send({ message: 'Erro no servidor ao realizar pesquisa por ID: ' + error.message })
+      .send({ message: 'Erro no servidor ao realizar pesquisa de região por ID: ' + error.message })
   }
 }
 
@@ -88,9 +87,10 @@ const updateRegions = async (req, res) => {
     const { id } = req.params
     const { nameRegion, owner, coordinatesRegion }: RegionBodyTypes = req.body
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const updatedRegion = await regionService.updateRegionsService(id, nameRegion, owner, coordinatesRegion)
 
-    return res.status(STATUS.UPDATED).json({ message: 'Atualização feita com sucesso' })
+    return res.status(STATUS.UPDATED).json({ message: 'Atualização da região feita com sucesso' })
   } catch (error) {
     return res
       .status(STATUS.INTERNAL_SERVER_ERROR)
