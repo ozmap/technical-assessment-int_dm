@@ -9,9 +9,10 @@ const geocoder = NodeGeocoder(geocoderOptions)
 
 export const filterUser = async (req, res, next) => {
   const { addressUser, coordinatesUser } = req.body
-  const id = req.params
 
-  if (!addressUser && !coordinatesUser && id != '') {
+  const id = req.params.id
+
+  if (!addressUser && !coordinatesUser && id) {
     return next()
   }
 
@@ -51,47 +52,3 @@ export const filterUser = async (req, res, next) => {
     res.status(STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Erro interno do servidor' })
   }
 }
-
-// const createRegionsWithNewUser = async (id, req, res) => {
-//   try {
-//     const owner = id
-
-//     const { nameRegion, coordinatesRegion }: RegionBodyTypes = req.body
-//     console.log('Aqui no middleware', owner, nameRegion, coordinatesRegion)
-
-//     if (!nameRegion || !coordinatesRegion || !owner) {
-//       return res.status(STATUS.BAD_REQUEST).send({
-//         message: 'Após criação do usuário, preencha  todos os campos corretamente para registrar a Região',
-//       })
-//     }
-
-//     const existingRegion = await RegionModel.findOne({ coordinatesRegion }).lean()
-//     if (existingRegion) {
-//       return res.status(STATUS.BAD_REQUEST).send({
-//         message: 'Região já cadastrada',
-//       })
-//     }
-
-//     const region = await regionService.createService({
-//       nameRegion,
-//       owner,
-//       coordinatesRegion,
-//     })
-
-//     if (!region) {
-//       return res.status(STATUS.NOT_FOUND).send({ message: 'Após criado o Usuário, gerou Erro ao criar Região' })
-//     }
-
-//     return res.status(STATUS.CREATED).send({
-//       menssage: 'Usuário e Região criados com sucesso!',
-//       user: {
-//         id: region._id,
-//         nameRegion,
-//         owner,
-//         coordinatesRegion,
-//       },
-//     })
-//   } catch (error) {
-//     return res.status(STATUS.INTERNAL_SERVER_ERROR).send({ message: error.message })
-//   }
-// }

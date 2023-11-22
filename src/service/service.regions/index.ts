@@ -52,9 +52,15 @@ const updateRegionsService = async (
 
     const oldOwnerId = (region.owner as { _id?: string })?._id
 
+    const updateFields = {
+      ...(nameRegion && { nameRegion }),
+      ...(owner && { owner }),
+      ...(coordinatesRegion && { coordinatesRegion }),
+    }
+
     const updatedRegion = await RegionModel.findOneAndUpdate(
       { _id: id },
-      { nameRegion, owner, coordinatesRegion },
+      { $set: updateFields },
       { new: true, runValidators: true },
     )
 
@@ -101,6 +107,7 @@ const findByPointSpecificService = async (longitude: number, latitude: number) =
             type: 'Point',
             coordinates: [longitude, latitude],
           },
+          $maxDistance: 150,
         },
       },
     }).lean()
@@ -127,6 +134,7 @@ const findRegionsWithinDistanceService = async (
               type: 'Point',
               coordinates: [longitude, latitude],
             },
+            $minDistance: 150,
             $maxDistance: distanceInfo,
           },
         },

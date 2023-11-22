@@ -57,9 +57,16 @@ const updateService = async (
   coordinatesUser: [number, number],
 ) => {
   try {
+    const updateFields = {
+      ...(nameUser && { nameUser }),
+      ...(email && { email }),
+      ...(addressUser && { addressUser }),
+      ...(coordinatesUser && { coordinatesUser }),
+    }
+
     const updatedUser = await UserModel.findOneAndUpdate(
       { _id: id },
-      { nameUser, email, addressUser, coordinatesUser },
+      { $set: updateFields },
       { new: true, runValidators: true },
     )
     return updatedUser

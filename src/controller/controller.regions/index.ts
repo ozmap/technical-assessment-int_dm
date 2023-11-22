@@ -87,6 +87,10 @@ const updateRegions = async (req, res) => {
     const { id } = req.params
     const { nameRegion, owner, coordinatesRegion }: RegionBodyTypes = req.body
 
+    if (nameRegion == '' && owner == '' && !Object.is(coordinatesRegion, [])) {
+      return res.status(STATUS.BAD_REQUEST).json({ message: 'Nenhum dado informado para atualização da região' })
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const updatedRegion = await regionService.updateRegionsService(id, nameRegion, owner, coordinatesRegion)
 
