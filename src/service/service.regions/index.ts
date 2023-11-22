@@ -17,10 +17,13 @@ const createService = async (body: RegionBodyTypes) => {
   return region
 }
 
-const findAllRegionsService = async () => {
+const findAllRegionsService = async (page = 1, limit = 10) => {
   try {
-    const regions = await RegionModel.find().lean()
+    const skip = (page - 1) * limit
+
+    const regions = await RegionModel.find().skip(skip).limit(limit).lean()
     const total = await RegionModel.countDocuments()
+
     return { regions, total }
   } catch (error) {
     throw new Error(`Erro ao buscar todas as regiões: ${error.message}`)

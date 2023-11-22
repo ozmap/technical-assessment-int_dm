@@ -7,7 +7,7 @@ const createService = async (body: UserBodyTypes) => {
     const existingUser = await UserModel.findOne({ email }).lean()
 
     if (existingUser) {
-      throw new Error(`Usuário com esse e-mail já cadastrado`)
+      return { message: 'Usuário com esse e-mail já cadastrado' }
     }
 
     const user = await UserModel.create(body)
@@ -30,10 +30,13 @@ const createService = async (body: UserBodyTypes) => {
   }
 }
 
-const findAllService = async () => {
+const findAllService = async (page = 1, limit = 10) => {
   try {
-    const users = await UserModel.find().lean()
+    const skip = (page - 1) * limit
+
+    const users = await UserModel.find().skip(skip).limit(limit).lean()
     const total = await UserModel.countDocuments()
+
     return { users, total }
   } catch (error) {
     throw new Error(`Erro ao buscar todos os usuários: ${error.message}`)
@@ -51,10 +54,10 @@ const findByIdService = async (id: string) => {
 
 const updateService = async (
   id: string,
-  nameUser: string,
-  email: string,
-  addressUser: string,
-  coordinatesUser: [number, number],
+  nameUser?: string,
+  email?: string,
+  addressUser?: string,
+  coordinatesUser?: [number, number],
 ) => {
   try {
     const updateFields = {
@@ -69,6 +72,9 @@ const updateService = async (
       { $set: updateFields },
       { new: true, runValidators: true },
     )
+
+    console.log('UpdatedUser: ', updatedUser)
+
     return updatedUser
   } catch (error) {
     console.error('Erro no serviço de atualização do usuário:', error)

@@ -1,4 +1,4 @@
-import * as NodeGeocoder from 'node-geocoder'
+import NodeGeocoder from 'node-geocoder'
 import { STATUS } from '../controller/controller.user'
 
 const geocoderOptions = {

@@ -27,12 +27,12 @@ const create = async (req, res) => {
     const { nameUser, email, addressUser, coordinatesUser, region }: UserBodyTypes = req.body
 
     if (!nameUser || !email || !addressUser || !coordinatesUser) {
-      return res.status(STATUS.BAD_REQUEST).send({
+      return res.status(STATUS.DEFAULT_ERROR).send({
         message: 'Preencha todos os campos obrigatórios para efetuar o cadastro',
       })
     }
 
-    const user = await userService.createService({
+    const userOrMessage = await userService.createService({
       nameUser,
       email,
       addressUser,
@@ -40,20 +40,26 @@ const create = async (req, res) => {
       region,
     })
 
-    if (user) {
-      const responseData = {
-        message: region ? 'Usuário e região criados com sucesso!' : 'Usuário criado com sucesso!',
-        user: {
-          id: user._id,
-          nameUser,
-          email,
-          addressUser,
-          coordinatesUser,
-          regions: user.regions || [],
-        },
-      }
-      return res.status(STATUS.CREATED).send(responseData)
+    if ('message' in userOrMessage) {
+      return res.status(STATUS.BAD_REQUEST).send({
+        message: userOrMessage.message,
+      })
     }
+
+    const { _id, regions } = userOrMessage
+
+    const responseData = {
+      message: region ? 'Usuário e região criados com sucesso!' : 'Usuário criado com sucesso!',
+      user: {
+        id: _id,
+        nameUser,
+        email,
+        addressUser,
+        coordinatesUser,
+        regions: regions || [],
+      },
+    }
+    return res.status(STATUS.CREATED).send(responseData)
   } catch (error) {
     return res
       .status(STATUS.INTERNAL_SERVER_ERROR)
@@ -64,8 +70,7 @@ const create = async (req, res) => {
 const findAll = async (req, res) => {
   try {
     const { page, limit } = req.query
-
-    const { users, total } = await userService.findAllService()
+    const { users, total } = await userService.findAllService(req.query.page, req.query.limit)
 
     return res
       .json({
@@ -76,9 +81,10 @@ const findAll = async (req, res) => {
       })
       .status(STATUS.OK)
   } catch (error) {
-    return res
-      .status(STATUS.INTERNAL_SERVER_ERROR)
-      .send({ message: 'Erro no servidor ao pesquisar todos usuários : ' + error.message })
+    return res.status(STATUS.INTERNAL_SERVER_ERROR).json({
+      error: 'Erro no servidor ao pesquisar todos usuários',
+      message: error.message,
+    })
   }
 }
 
@@ -105,13 +111,21 @@ const update = async (req, res) => {
     const { id } = req.params
     const { nameUser, email, addressUser, coordinatesUser }: UserBodyTypes = req.body
 
+    console.log('No Controller --> Request Params:', { id })
+    console.log('No Controller --> Request Body:', { nameUser, email, addressUser, coordinatesUser })
+
     const updated = await userService.updateService(id, nameUser, email, addressUser, coordinatesUser)
+
+    console.log('Controller Updated:', updated)
 
     if (!updated) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
     }
 
-    return res.status(STATUS.UPDATED).json({ message: 'Atualização do usuário feito com sucesso' })
+    return res.status(STATUS.UPDATED).json({
+      message: 'Atualização do usuário feita com sucesso',
+      user: updated,
+    })
   } catch (error) {
     return res
       .status(STATUS.INTERNAL_SERVER_ERROR)

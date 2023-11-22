@@ -24,7 +24,8 @@
     "geocoder": "^0.2.3",
     "mongoose": "^7.5.3",
     "node-geocoder": "^4.2.0",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.6",
@@ -35,6 +36,7 @@
     "@types/reflect-metadata": "^0.1.0",
     "@types/sinon": "^10.0.17",
     "@types/supertest": "^2.0.13",
+    "@types/swagger-ui-express": "^4.1.6",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
     "eslint": "^8.53.0",

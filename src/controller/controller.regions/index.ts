@@ -46,8 +46,7 @@ const createRegions = async (req, res) => {
 const findAllRegions = async (req, res) => {
   try {
     const { page, limit } = req.query
-
-    const { regions, total } = await regionService.findAllRegionsService()
+    const { regions, total } = await regionService.findAllRegionsService(req.query.page, req.query.limit)
 
     return res
       .json({

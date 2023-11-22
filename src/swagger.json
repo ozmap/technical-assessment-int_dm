@@ -1,0 +1,517 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Desafio OzMap - API de manipulação de Usuários e Regiões",
+    "description": "Esse desafio consiste realizar um CRUD completo para Usuários e Regiões. Cada Usuário deve ter nome, email, endereço e coordenadas. Na criação, o Usuário pode fornecer endereço ou coordenadas. Haverá erro caso forneça ambos ou nenhum. Uso de serviço de geolocalização para resolver endereço ↔ coordenadas e a atualização de endereço ou coordenadas deve seguir a mesma lógica. Para a entidade Regiões, Cada região tem um nome, coordenadas e um Usuário que será o dono da região. Listar Regiões contendo um ponto específico e listar Regiões a uma certa distância de um ponto, com opção de filtrar Regiões não pertencentes ao Usuário que fez a requisição.",
+    "termsOfService": "http://localhost:3000/terms",
+    "contact": {
+      "email": "marcelo.abbadia@gmail.com"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/v1",
+      "description": "API de test"
+    }
+  ],
+  "paths": {
+    "/user": {
+      "post": {
+        "summary": "Cadastro de Usuário com ou sem Região.",
+        "description": "Rota responsável para cadastar Usuário sem Região ou Usuário com Região.",
+        "tags": ["User"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              },
+              "examples": {
+                "user1": {
+                  "value": {
+                    "nameUser": "Marcelo Abbadia",
+                    "email": "marcelo@teste.com.br",
+                    "addressUser": "Av. Brasil, 5000, RJ",
+                    "coordinatesUser": ""
+                  }
+                },
+                "user2": {
+                  "value": {
+                    "nameUser": "Joao Abbadia",
+                    "email": "joao@teste.com.br",
+                    "addressUser": "",
+                    "coordinatesUser": [-22.875148796659868, -43.24338101349157]
+                  }
+                },
+                "user4": {
+                  "value": {
+                    "nameUser": "Claudio Abbadia",
+                    "email": "claudio@teste.com.br",
+                    "addressUser": "Av. Brasil, 5000, RJ",
+                    "coordinatesUser": "",
+                    "regions": {
+                      "value": {
+                        "nameRegion": "Zona Norte",
+                        "coordinatesRegion": [-22.842535, -43.37113]
+                      }
+                    }
+                  }
+                },
+                "user5": {
+                  "value": {
+                    "nameUser": "Vicente Abbadia",
+                    "email": "vicente@teste.com.br",
+                    "addressUser": "",
+                    "coordinatesUser": [-22.875148796659868, -43.24338101349157],
+                    "regions": {
+                      "value": {
+                        "nameRegion": "Zona Norte",
+                        "coordinatesRegion": [-22.842535, -43.37113]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário e região criados com sucesso! / Usuário criado com sucesso!"
+          },
+          "400": {
+            "description": "Informe apenas o endereço ou as coordenadas."
+          },
+          "418": {
+            "description": "Preencha todos os campos obrigatórios para efetuar o cadastro."
+          },
+          "500": {
+            "description": "Erro no Servidor ao criar Usuário: Erro ao criar Usuário: Usuário com esse e-mail já cadastrado."
+          }
+        },
+        "x-middlewares": [
+          {
+            "name": "filterUser",
+            "description": "Middleware para converter endereço em coordenadas e vice-versa."
+          }
+        ]
+      },
+      "get": {
+        "description": "Buscar todos Usuários cadastrados.",
+        "summary": "Buscar todos Usuários na base de dados cadastrados.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número da página.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Quantidade de usuários por página.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro no servidor ao pesquisar todos usuários."
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "patch": {
+        "summary": "Atualização de dado(s) do Usuário.",
+        "description": "Rota responsável por atualizar informações de um Usuário.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do Usuário a ser atualizado.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              },
+              "examples": {
+                "Update1": {
+                  "value": {
+                    "nameUser": "Marcelo Abbadia",
+                    "email": "Novoemail@teste.com.br",
+                    "addressUser": "Av. Brasil, 5000",
+                    "coordinatesUser": ""
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Usuário não encontrado."
+            },
+            "500": {
+              "description": "Erro no servidor ao realizar atualização do usuário."
+            }
+          }
+        },
+        "x-middlewares": [
+          {
+            "name": "filterUser",
+            "description": "Middleware para converter endereço em coordenadas e vice-versa."
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Exclusão de Usuário.",
+        "description": "Rota responsável por excluir um Usuário pelo ID.",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do Usuário a ser excluído.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Usuário excluído com sucesso"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          },
+          "500": {
+            "description": "Erro no servidor ao realizar exclusão do usuário."
+          }
+        }
+      }
+    },
+    "/user/byId/{id}": {
+      "get": {
+        "description": "Buscar um Usuário através do ID",
+        "summary": "Buscar de um Usuário através ID",
+        "tags": ["User"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID do Usuário para a busca.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          }
+        },
+        "500": {
+          "description": "Erro no servidor ao realizar pesquisa de usuário por ID."
+        }
+      }
+    },
+    "/region": {
+      "post": {
+        "summary": "Cadastro de Região.",
+        "description": "Rota responsável por cadastrar uma Região, é obrigatório fornecer o ID do Owner (Dono).",
+        "tags": ["Region"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Region"
+              },
+              "examples": {
+                "region1": {
+                  "value": {
+                    "nameRegion": "Zona Norte",
+                    "owner": "655e1d61495cd06d53c25b5d",
+                    "coordinatesRegion": [-22.842535, -43.37113]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Região criada com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Região criada com sucesso!"
+                    },
+                    "region": {
+                      "$ref": "#/components/schemas/Region"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Preencha todos os campos corretamente para registrar a Região."
+          },
+          "404": {
+            "description": "Erro ao criar Região."
+          },
+          "500": {
+            "description": "Erro no servidor ao criar Região."
+          }
+        }
+      },
+      "get": {
+        "summary": "Buscar todas Regiões.",
+        "description": "Rota responsável por buscar todas as Regiões cadastradas.",
+        "tags": ["Region"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número da página.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Quantidade de regiões por página.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Region"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro no servidor ao pesquisar todas regiões."
+          }
+        }
+      }
+    },
+    "/region/byId/{id}": {
+      "get": {
+        "summary": "Buscar uma Região através do ID.",
+        "description": "Rota responsável por buscar uma Região pelo ID.",
+        "tags": ["Region"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID da Região para a busca.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Region"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Região não encontrada."
+          },
+          "500": {
+            "description": "Erro no servidor ao realizar pesquisa de região por ID."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "nameUser": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "addressUser": {
+            "type": "string"
+          },
+          "coordinatesUser": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "regions": {
+            "type": "object",
+            "properties": {
+              "nameRegion": {
+                "type": "string"
+              },
+              "coordinatesRegion": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "owner": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Region": {
+        "type": "object",
+        "properties": {
+          "nameRegion": {
+            "type": "string"
+          },
+          "coordinatesRegion": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "owner": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
