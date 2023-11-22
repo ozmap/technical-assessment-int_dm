@@ -49,9 +49,7 @@ GOOGLE_API_KEY=AIzaSyCOzyNvyVumnu8GmujVFfqr4WX2IUMdWVQ
 
 6. Aguarde todos os contêineres ficarem de pé;
 
-7. Para a visualização dos logs das requisições da API execute o comando:
-
-<code>docker logs -f ozimap-api</code>
+7. Para a visualização dos logs das requisições da API execute o comando <code>docker logs -f ozimap-api</code>;
 
 ## 📷 Preview:
 
