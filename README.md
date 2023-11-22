@@ -33,7 +33,7 @@ Desenvolver uma API RESTful robusta voltada para gerenciamento de usuários e lo
 
 3. Entre na pasta do repositório e instale as dependências utilizando o comando:
 
-`npm install`
+   `npm install`
 
 4. Crie um arquivo **.env** contendo as mesmas variáveis de ambiente presentes no arquivo **.env.example**, ou use os dados do exemplo abaixo:
 <pre>
@@ -49,9 +49,9 @@ GOOGLE_API_KEY=AIzaSyCOzyNvyVumnu8GmujVFfqr4WX2IUMdWVQ
 
 6. Aguarde todos os contêineres ficarem de pé;
 
-7. Após isso, você poderá acessar a API localmente através do localhost na porta escolhida na variável de ambiente PORT.
+7. Para a visualização dos logs das requisições da API execute o comando:
 
-<code>docker logs -f ozmap-api</code>
+<code>docker logs -f ozimap-api</code>
 
 ## 📷 Preview:
 
