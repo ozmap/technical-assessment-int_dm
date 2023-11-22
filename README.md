@@ -1,69 +1,91 @@
-# OZmap Challenge: Construindo a Geolocalização do Futuro
+# 🛒 Desafio OZmap
 
-Olá desenvolvedor(a)! Bem-vindo(a) ao Desafio Técnico do OZmap. Este é um projeto que simula um cenário real de nossa empresa, onde você irá desempenhar um papel crucial ao desenvolver uma API RESTful robusta para gerenciar usuários e localizações. Estamos muito animados para ver sua abordagem e solução!
+# 🎯Objetivo:
 
-## 🌍 **Visão Geral**
+Desenvolver uma API RESTful robusta voltada para gerenciamento de usuários e localizações.
 
-Em um mundo conectado e globalizado, a geolocalização se torna cada vez mais essencial. E aqui no OZmap, buscamos sempre otimizar e melhorar nossos sistemas. Assim, você encontrará um protótipo que precisa de sua experiência para ser corrigido, melhorado e levado ao próximo nível.
+# 🖥️Tecnologias utilizadas:
 
-## 🛠 **Especificações Técnicas**
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
+![Mongoose](https://img.shields.io/badge/mongooose-%234ea94b.svg?style=for-the-badge&logo=mongoose&logoColor=white)
+![Mocha](https://img.shields.io/badge/-mocha-%238D6748?style=for-the-badge&logo=mocha&logoColor=white)
+![Chai](https://img.shields.io/badge/chai-974942?style=for-the-badge&logo=chai&logoColor=white)
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 
-- **Node.js**: Versão 20 ou superior.
-- **Banco de Dados**: Mongo 7+.
-- **ORM**: Mongoose / Typegoose.
-- **Linguagem**: Typescript.
-- **Formatação e Linting**: Eslint + prettier.
-- **Comunicação com MongoDB**: Deve ser feita via container.
+## 📋 Pré-requisitos:
 
-## 🔍 **Funcionalidades Esperadas**
+- Docker versão 20.0.6
+- Docker compose versão v2.23.0
 
-### Usuários
-- **CRUD** completo para usuários.
-- Cada usuário deve ter nome, email, endereço e coordenadas.
-- Na criação, o usuário pode fornecer endereço ou coordenadas. Haverá erro caso forneça ambos ou nenhum.
-- Uso de serviço de geolocalização para resolver endereço ↔ coordenadas.
-- Atualização de endereço ou coordenadas deve seguir a mesma lógica.
+# 🛠️ Como Utilizar:
 
-### Regiões
-- **CRUD** completo para regiões.
-- Cada região tem um nome, coordenadas e um usuário que será o dono da região.
-- Listar regiões contendo um ponto específico.
-- Listar regiões a uma certa distância de um ponto, com opção de filtrar regiões não pertencentes ao usuário que fez a requisição.
+1. Clone o repositório para sua máquina utilizando o comando:
 
-### Autenticação
-- Autenticação não é necessária.
+   `git clone git@github.com:leonardocbrand/ozmap-challenge.git`
 
-### Testes
-- Unitários e de integração.
+2. Troque para a branch **leonardo-brandao** utilizando o comando:
 
-## 🌟 **Diferenciais**
+   `git checkout leonardo-brandao`
 
-- Documentação completa da API.
-- Interface para visualização de logs.
-- Exportação de relatórios (.csv).
-- Cobertura de código.
+3. Entre na pasta do repositório e instale as dependências utilizando o comando:
 
-## ⚖ **Critérios de Avaliação**
+   `npm install`
 
-1. Organização e clareza do código.
-2. Estruturação do projeto.
-3. Qualidade e eficiência do código.
-4. Cobertura e qualidade de testes.
-5. Pontos diferenciais citados acima.
-6. Tempo de entrega.
-7. Padronização e clareza das mensagens de erro.
-8. Organização dos commits.
-9. Implementação de logs.
-10. Adesão às boas práticas de API RESTful.
+4. Crie um arquivo **.env** contendo as mesmas variáveis de ambiente presentes no arquivo **.env.example**, ou use os dados do exemplo abaixo:
+<pre>
+<code>DB_PORT=27017
+API_PORT=3001 
+MONGODB_URI=mongodb://db:27017/oz-tech-test?authSource=admin
+GOOGLE_GEOCODING_REVERSE_URL=https://maps.googleapis.com/maps/api/geocode/json?latlng=
+GOOGLE_GEOCODING_URL=https://maps.googleapis.com/maps/api/geocode/json?address=
+GOOGLE_API_KEY=AIzaSyCOzyNvyVumnu8GmujVFfqr4WX2IUMdWVQ
+</code></pre>
 
-## 🚀 **Entrega**
+5. Abra um terminal na **raiz do repositório** e execute o comando <code>docker-compose up</code>;
 
-1. Faça um fork deste repositório.
-2. Crie uma branch com o padrão `seu-nome-sobrenome`.
-3. Ao finalizar, faça um pull request para a branch `main` deste repositório.
-4. Envie um email `rh@ozmap.com.br` informando que o teste foi concluído.
-5. Aguarde nosso feedback.
+6. Aguarde todos os contêineres ficarem de pé;
 
----
+7. Para a visualização dos logs das requisições da API execute o comando <code>docker logs -f ozimap-api</code>;
 
-Estamos ansiosos para ver sua implementação e criatividade em ação! Boa sorte e que a força do código esteja com você! 🚀
+## 📷 Preview:
+
+#### Documentação 1 (Swagger)
+
+![alt text](./preview/swagger.png)
+
+#### Documentação 2 (Swagger)
+
+![alt text](./preview/swagger2.png)
+
+#### Documentação 3 (Swagger)
+
+![alt text](./preview/swagger3.png)
+
+#### Cobertura de testes
+
+![alt text](./preview/coverage.png)
+
+## 💻 Aplicação:
+
+# Usuários
+
+- Implementar um CRUD completo para usuários.
+- Garantir que cada usuário contenha informações essenciais, como nome, email, endereço e coordenadas.
+- Na criação de um usuário, permitir que o mesmo forneça um endereço ou coordenadas, apresentando um erro caso ambos ou nenhum sejam fornecidos.
+- Utilizar um serviço de geolocalização para resolver endereço ↔ coordenadas, assegurando consistência nas informações.
+- Ao atualizar o endereço ou coordenadas de um usuário, seguir a mesma lógica, mantendo a integridade dos dados.
+
+# Regiões
+
+- Implementar um CRUD completo para regiões.
+- Cada região deve possuir um nome, coordenadas e um usuário que será designado como proprietário da região.
+- Possibilitar a listagem de regiões contendo um ponto específico.
+- Permitir a listagem de regiões a uma certa distância de um ponto, oferecendo a opção de filtrar as regiões não pertencentes ao usuário que fez a requisição.
+
+## Postman
+
+Caso prefira realizar as requisições usando o Postman, na raíz do projeto há um arquivo chamado `postmanCollection.json` para importar as collections com todas as requisições.

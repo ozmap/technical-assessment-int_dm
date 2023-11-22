@@ -1,64 +1,26 @@
-import * as app from 'express';
-import { UserModel } from './models';
+import express from 'express';
+import './db/database';
+import errorMiddleware from './middlewares/error.middleware';
+import usersRoute from './routes/users.route';
+import regionsRoute from './routes/regions.route';
+import exportRoute from './routes/export.route';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocs from './swagger.json';
+import logger from './middlewares/logger.middleware';
 
-const server = app();
-const router = app.Router();
+const PORT = process.env.API_PORT || 3002;
 
-const STATUS = {
-  OK: 200,
-  CREATED: 201,
-  UPDATED: 201,
-  NOT_FOUND: 400,
-  BAD_REQUEST: 400,
-  INTERNAL_SERVER_ERROR: 500,
-  DEFAULT_ERROR: 418,
-};
+const server = express();
 
-router.get('/user', async (req, res) => {
-  const { page, limit } = req.query;
+server.use(express.json());
+server.use(logger);
 
-  const [users, total] = await Promise.all([
-    UserModel.find().lean(),
-    UserModel.count(),
-  ]);
+server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-  return res.json({
-    rows: users,
-    page,
-    limit,
-    total,
-  });
-});
+server.use('/users', usersRoute);
+server.use('/regions', regionsRoute);
+server.use('/export', exportRoute);
 
-router.get('/users/:id', async (req, res) => {
-  const { id } = req.params;
+server.use(errorMiddleware);
 
-  const user = await UserModel.findOne({ _id: id }).lean();
-
-  if (!user) {
-    res.status(STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Region not found' });
-  }
-
-  return user;
-});
-
-router.put('/users/:id', async (req, res) => {
-  const { id } = req.params;
-  const { update } = req.body;
-
-  const user = await UserModel.findOne({ _id: id }).lean();
-
-  if (!user) {
-    res.status(STATUS.DEFAULT_ERROR).json({ message: 'Region not found' });
-  }
-
-  user.name = update.name;
-
-  await user.save();
-
-  return res.sendStatus(201);
-});
-
-server.use(router);
-
-export default server.listen(3003);
+export default server.listen(PORT, () => console.log('Server listening on port', PORT));
