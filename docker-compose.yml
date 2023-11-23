@@ -1,0 +1,21 @@
+services:
+  mongo-ozmap:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-ozmap-volume:/data/db
+    restart: always
+  api:
+    container_name: api-ozmap
+    build: ./api
+    restart: always
+    ports:
+      - 3005:3005
+    depends_on:
+      - mongo-ozmap
+    env_file:
+      - ./api/.env
+
+volumes:
+  mongodb-ozmap-volume:
