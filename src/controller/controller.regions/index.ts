@@ -86,7 +86,10 @@ const updateRegions = async (req, res) => {
     const { id } = req.params
     const { nameRegion, owner, coordinatesRegion }: RegionBodyTypes = req.body
 
-    if (nameRegion == '' && owner == '' && !Object.is(coordinatesRegion, [])) {
+    console.log('Id Region: ', id)
+    console.log('nameRegion: ', nameRegion, ' owner: ', owner, 'coordinatesRegion: ', coordinatesRegion)
+
+    if (nameRegion == '' && owner == '' && Object.is(coordinatesRegion, [])) {
       return res.status(STATUS.BAD_REQUEST).json({ message: 'Nenhum dado informado para atualização da região' })
     }
 
@@ -105,6 +108,8 @@ const deleteByIdRegions = async (req, res) => {
   try {
     const { id } = req.params
 
+    console.log('Id da região para exclusão: ', id)
+
     await regionService.deleteByIdRegionsService(id)
 
     return res.status(STATUS.OK).json({ message: 'Região excluída com sucesso' })
@@ -119,18 +124,24 @@ const findRegionsByPointSpecific = async (req, res) => {
   try {
     const latitude: number = parseFloat(req.query.latitude)
     const longitude: number = parseFloat(req.query.longitude)
+    const page: number = req.query.page ? parseInt(req.query.page) : 1
+    const limit: number = req.query.limit ? parseInt(req.query.limit) : 10
+
+    console.log('Pesquisar : latitude: ', latitude, 'longitude :', longitude)
 
     if (!latitude || !longitude) {
       return res.status(STATUS.BAD_REQUEST).send({
         message: 'Informe corretamente as coordenadas (latitude e longitude) para listar as regiões.',
       })
     }
-    const regions = await regionService.findByPointSpecificService(latitude, longitude)
+    const { regions, total } = await regionService.findByPointSpecificService(latitude, longitude, page, limit)
 
     if (regions.length > 0) {
       return res.status(STATUS.OK).send({
         message: 'Regiões encontradas com sucesso!',
         regions,
+        page,
+        total,
       })
     } else {
       return res.status(STATUS.NOT_FOUND).send({
@@ -159,18 +170,25 @@ const findRegionsWithinDistance = async (req, res) => {
       })
     }
 
-    const regions = await regionService.findRegionsWithinDistanceService(
+    const { regions, total } = await regionService.findRegionsWithinDistanceService(
       userId,
       longitude,
       latitude,
       distanceInfo,
       includeAllRegions,
+      req.query.page,
+      req.query.limit,
     )
+
+    console.log(regions)
 
     if (regions.length > 0) {
       return res.status(STATUS.OK).send({
         message: 'Regiões encontradas com sucesso!',
         regions,
+        page: req.query.page,
+        limit: req.query.limit,
+        total,
       })
     } else {
       return res.status(STATUS.NOT_FOUND).send({

@@ -26,6 +26,19 @@ const create = async (req, res) => {
   try {
     const { nameUser, email, addressUser, coordinatesUser, region }: UserBodyTypes = req.body
 
+    console.log(
+      'nameUser: ',
+      nameUser,
+      ' email: ',
+      email,
+      ' addressUser: ',
+      addressUser,
+      ' coordinatesUser: ',
+      coordinatesUser,
+      ' region: ',
+      region,
+    )
+
     if (!nameUser || !email || !addressUser || !coordinatesUser) {
       return res.status(STATUS.DEFAULT_ERROR).send({
         message: 'Preencha todos os campos obrigatórios para efetuar o cadastro',
@@ -72,6 +85,8 @@ const findAll = async (req, res) => {
     const { page, limit } = req.query
     const { users, total } = await userService.findAllService(req.query.page, req.query.limit)
 
+    console.log(users)
+
     return res
       .json({
         rows: users,
@@ -91,12 +106,13 @@ const findAll = async (req, res) => {
 const findById = async (req, res) => {
   try {
     const { id } = req.params
-
     const user = await userService.findByIdService(id)
 
     if (!user) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
     }
+
+    console.log(user)
 
     return res.status(STATUS.OK).json({ user })
   } catch (error) {
@@ -111,12 +127,12 @@ const update = async (req, res) => {
     const { id } = req.params
     const { nameUser, email, addressUser, coordinatesUser }: UserBodyTypes = req.body
 
-    console.log('No Controller --> Request Params:', { id })
-    console.log('No Controller --> Request Body:', { nameUser, email, addressUser, coordinatesUser })
+    console.log('Request Params:', { id })
+    console.log('Request Body:', { nameUser, email, addressUser, coordinatesUser })
 
     const updated = await userService.updateService(id, nameUser, email, addressUser, coordinatesUser)
 
-    console.log('Controller Updated:', updated)
+    console.log('Após Alteraçao:', updated)
 
     if (!updated) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })
@@ -136,8 +152,9 @@ const update = async (req, res) => {
 const deleteById = async (req, res) => {
   try {
     const { id } = req.params
-
     const deleted = await userService.deleteByIdService(id)
+
+    console.log('Id para deletar: ', id)
 
     if (!deleted) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Usuário não encontrado' })

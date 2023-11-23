@@ -412,6 +412,96 @@
         }
       }
     },
+    "/region/{id}": {
+      "patch": {
+        "summary": "Atualização de dado(s) da Região.",
+        "description": "Rota responsável por atualizar informações de uma Região.",
+        "tags": ["Region"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID da Região a ser atualizada.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Region"
+              },
+              "examples": {
+                "Update1": {
+                  "value": {
+                    "nameRegion": "Região SUDESTE",
+                    "owner": "655e77846a38a0d8a1e31595",
+                    "coordinatesRegion": [-22.12345, -43.54321]
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Region"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Região não encontrada."
+            },
+            "500": {
+              "description": "Erro no servidor ao realizar atualização da região."
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Exclusão da Região.",
+        "description": "Rota responsável por excluir uma Região.",
+        "tags": ["Region"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID da Região a ser excluída.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "ObjectId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Região excluída com sucesso"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Região não encontrada."
+          },
+          "500": {
+            "description": "Erro no servidor ao deletar região."
+          }
+        }
+      }
+    },
     "/region/byId/{id}": {
       "get": {
         "summary": "Buscar uma Região através do ID.",
@@ -445,6 +535,195 @@
           },
           "500": {
             "description": "Erro no servidor ao realizar pesquisa de região por ID."
+          }
+        }
+      }
+    },
+    "/regions/byPointSpecific": {
+      "get": {
+        "summary": "Buscar regiões por ponto específico.",
+        "description": "Rota responsável por buscar regiões com base em coordenadas específicas.",
+        "tags": ["Region"],
+        "parameters": [
+          {
+            "name": "latitude",
+            "in": "query",
+            "description": "Latitude do ponto específico.",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "description": "Longitude do ponto específico.",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "regions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Region"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Informe corretamente as coordenadas (latitude e longitude) para listar as regiões."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Nenhuma região encontrada!"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro de servidor ao listar regiões por ponto específico: {error_message}"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/regions/withinDistance": {
+      "get": {
+        "summary": "Buscar regiões dentro de uma distância específica podendo filtrar por owner.",
+        "description": "Rota responsável por buscar regiões dentro de uma distância específica informada a partir de um ponto, podendo filtrar pelo dono da Região.",
+        "tags": ["Region"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "ID do Owner.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "latitude",
+            "in": "query",
+            "description": "Latitude do ponto específico.",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "description": "Longitude do ponto específico.",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "distance",
+            "in": "query",
+            "description": "Distância em metros do ponto específico.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1000
+            }
+          },
+          {
+            "name": "includeAllRegions",
+            "in": "query",
+            "description": "Incluir todas as regiões dentro da distância, independentemente do owner (dono).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "regions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Region"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Informe corretamente as coordenadas (latitude e longitude) e uma distância não pode ser negativa para listar as regiões."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Nenhuma região encontrada dentro da distância especificada."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Erro de servidor ao listar regiões por distância informada do ponto específico: {error_message}"
+                }
+              }
+            }
           }
         }
       }

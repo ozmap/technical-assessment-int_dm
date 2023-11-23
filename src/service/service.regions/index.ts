@@ -101,8 +101,10 @@ const deleteByIdRegionsService = async (regionId) => {
   }
 }
 
-const findByPointSpecificService = async (longitude: number, latitude: number) => {
+const findByPointSpecificService = async (longitude: number, latitude: number, page = 1, limit = 10) => {
   try {
+    const skip = (page - 1) * limit
+
     const regions = await RegionModel.find({
       coordinatesRegion: {
         $near: {
@@ -113,11 +115,16 @@ const findByPointSpecificService = async (longitude: number, latitude: number) =
           $maxDistance: 150,
         },
       },
-    }).lean()
+    })
+      .skip(skip)
+      .limit(limit)
+      .lean()
 
-    return regions
+    const total = regions.length
+
+    return { regions, total }
   } catch (error) {
-    throw new Error(`Erro no serviço de listar regiões por ponto específico : ${error.message}`)
+    throw new Error(`Erro no serviço de listar regiões por ponto específico: ${error.message}`)
   }
 }
 
@@ -127,8 +134,12 @@ const findRegionsWithinDistanceService = async (
   longitude: number,
   distanceInfo?: number,
   includeAllRegions?: boolean,
+  page = 1,
+  limit = 10,
 ) => {
   try {
+    const skip = (page - 1) * limit
+
     if (includeAllRegions) {
       const regions = await RegionModel.find({
         coordinatesRegion: {
@@ -141,9 +152,14 @@ const findRegionsWithinDistanceService = async (
             $maxDistance: distanceInfo,
           },
         },
-      }).lean()
+      })
+        .lean()
+        .skip(skip)
+        .limit(limit)
 
-      return regions
+      const total = regions.length
+
+      return { regions, total }
     } else {
       const regions = await RegionModel.find({
         owner: new mongoose.Types.ObjectId(userId),
@@ -156,9 +172,14 @@ const findRegionsWithinDistanceService = async (
             $maxDistance: distanceInfo,
           },
         },
-      }).lean()
+      })
+        .lean()
+        .skip(skip)
+        .limit(limit)
 
-      return regions
+      const total = regions.length
+
+      return { regions, total }
     }
   } catch (error) {
     throw new Error(`Erro no serviço de listar regiões a uma certa distância de um ponto : ${error.message}`)

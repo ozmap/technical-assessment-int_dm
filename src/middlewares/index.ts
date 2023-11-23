@@ -1,16 +1,24 @@
 import NodeGeocoder from 'node-geocoder'
 import { STATUS } from '../controller/controller.user'
+import dotenv from 'dotenv'
+
+dotenv.config()
+const KEY_GOOGLE = process.env.API_KEY_GOOGLE
 
 const geocoderOptions = {
-  provider: 'openstreetmap',
+  provider: 'google',
+  apiKey: KEY_GOOGLE,
 }
 
 const geocoder = NodeGeocoder(geocoderOptions)
 
 export const filterUser = async (req, res, next) => {
   const { addressUser, coordinatesUser } = req.body
-
   const id = req.params.id
+
+  if (!id && addressUser && coordinatesUser) {
+    return res.status(STATUS.BAD_REQUEST).json({ error: 'Informe apenas o endereço ou as coordenadas' })
+  }
 
   if (!addressUser && !coordinatesUser && id) {
     return next()
@@ -29,7 +37,9 @@ export const filterUser = async (req, res, next) => {
 
       const formattedAddress = `${data[0].streetName}, ${data[0].streetNumber}, ${
         data[0].neighborhood || data[0].extra?.neighborhood || ''
-      }, ${data[0].zipcode}`
+      }, ${data[0].administrativeLevels.level2long || data[0].administrativeLevels.level2short || ''}, ${
+        data[0].zipcode
+      }`
 
       req.body.coordinatesUser = [data[0].latitude, data[0].longitude]
       req.body.addressUser = formattedAddress
@@ -42,13 +52,15 @@ export const filterUser = async (req, res, next) => {
 
       const formattedAddress = `${data[0].streetName}, ${data[0].streetNumber}, ${
         data[0].neighborhood || data[0].extra?.neighborhood || ''
-      }, ${data[0].zipcode}`
+      }, ${data[0].administrativeLevels.level2long || data[0].administrativeLevels.level2short || ''}, ${
+        data[0].zipcode
+      }`
 
       req.body.addressUser = formattedAddress
     }
     next()
   } catch (error) {
-    console.error('Erro ao processar a requisição:', error)
-    res.status(STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Erro interno do servidor' })
+    console.error('Erro ao processar a requisição no middleware:', error)
+    res.status(STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Erro interno do servidor ao passar no middleware' })
   }
 }
