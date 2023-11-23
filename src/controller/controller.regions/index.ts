@@ -11,6 +11,8 @@ const createRegions = async (req, res) => {
   try {
     const { nameRegion, coordinatesRegion, owner }: RegionBodyTypes = req.body
 
+    console.log('nameRegion: ', nameRegion, ' coordinatesRegion: ', coordinatesRegion, ' owner: ', owner)
+
     if (!nameRegion || !coordinatesRegion || !owner) {
       return res.status(STATUS.BAD_REQUEST).send({
         message: 'Preencha  todos os campos corretamente para registrar a Região',
@@ -26,6 +28,7 @@ const createRegions = async (req, res) => {
     if (!region) {
       return res.status(STATUS.NOT_FOUND).send({ message: 'Erro ao criar Região' })
     }
+    console.log(region)
 
     return res.status(STATUS.CREATED).send({
       menssage: 'Região criada com sucesso!',
@@ -48,6 +51,8 @@ const findAllRegions = async (req, res) => {
     const { page, limit } = req.query
     const { regions, total } = await regionService.findAllRegionsService(req.query.page, req.query.limit)
 
+    console.log(regions)
+
     return res
       .json({
         rows: regions,
@@ -66,12 +71,15 @@ const findAllRegions = async (req, res) => {
 const findByIdRegions = async (req, res) => {
   try {
     const { id } = req.params
-
     const region = await regionService.findByIdRegionsService(id)
+
+    console.log('Id da região para pesquisar:', id)
 
     if (!region) {
       return res.status(STATUS.NOT_FOUND).json({ message: 'Região não encontrada' })
     }
+
+    console.log(region)
 
     return res.status(STATUS.OK).json({ region })
   } catch (error) {
@@ -162,6 +170,8 @@ const findRegionsWithinDistance = async (req, res) => {
     const longitude: number = parseFloat(req.query.longitude)
     const distanceInfo: number = parseInt(req.query.distance) || 1000
     const includeAllRegions: boolean = req.query.includeAllRegions === 'true'
+
+    console.log('Pesquisar : latitude: ', latitude, 'longitude :', longitude, 'distanceInfo: ', distanceInfo)
 
     if (!latitude || !longitude || distanceInfo < 0) {
       return res.status(STATUS.BAD_REQUEST).send({

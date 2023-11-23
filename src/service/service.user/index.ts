@@ -73,7 +73,7 @@ const updateService = async (
       { new: true, runValidators: true },
     )
 
-    console.log('UpdatedUser: ', updatedUser)
+    console.log('UpdatedUser:', updatedUser)
 
     return updatedUser
   } catch (error) {

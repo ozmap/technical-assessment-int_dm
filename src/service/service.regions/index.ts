@@ -42,9 +42,9 @@ const findByIdRegionsService = async (id: string) => {
 
 const updateRegionsService = async (
   id: string,
-  nameRegion: string,
-  owner: string,
-  coordinatesRegion: [number, number],
+  nameRegion?: string,
+  owner?: string,
+  coordinatesRegion?: [number, number],
 ) => {
   try {
     const region = await RegionModel.findOne({ _id: id }).lean()

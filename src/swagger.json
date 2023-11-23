@@ -12,7 +12,7 @@
   "servers": [
     {
       "url": "http://localhost:3000/v1",
-      "description": "API de test"
+      "description": "API - Usuário e Região"
     }
   ],
   "paths": {
@@ -187,6 +187,14 @@
                     "email": "Novoemail@teste.com.br",
                     "addressUser": "Av. Brasil, 5000",
                     "coordinatesUser": ""
+                  }
+                },
+                "Update2": {
+                  "value": {
+                    "nameUser": "Marcelo Abbadia",
+                    "email": "Novoemail@teste.com.br",
+                    "addressUser": "",
+                    "coordinatesUser": [-22.84100824300399, -43.253089935582175]
                   }
                 }
               }
@@ -433,7 +441,22 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Region"
+                "type": "object",
+                "properties": {
+                  "nameRegion": {
+                    "type": "string"
+                  },
+                  "owner": {
+                    "type": "string",
+                    "format": "ObjectId"
+                  },
+                  "coordinatesRegion": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
               },
               "examples": {
                 "Update1": {
@@ -459,6 +482,16 @@
             },
             "404": {
               "description": "Região não encontrada."
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Nenhum dado informado para atualização da região"
+                  }
+                }
+              }
             },
             "500": {
               "description": "Erro no servidor ao realizar atualização da região."
@@ -562,6 +595,26 @@
             "schema": {
               "type": "number"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número da página para paginação.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Número de itens por página.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
           }
         ],
         "responses": {
@@ -580,6 +633,12 @@
                       "items": {
                         "$ref": "#/components/schemas/Region"
                       }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
                     }
                   }
                 }
@@ -621,8 +680,8 @@
     },
     "/regions/withinDistance": {
       "get": {
-        "summary": "Buscar regiões dentro de uma distância específica podendo filtrar por owner.",
-        "description": "Rota responsável por buscar regiões dentro de uma distância específica informada a partir de um ponto, podendo filtrar pelo dono da Região.",
+        "summary": "Buscar regiões dentro de uma distância específica podendo filtrar pelo proprietário (owner).",
+        "description": "Rota responsável por buscar regiões dentro de uma distância específica informada a partir de um ponto, podendo filtrar pelo proprietário (owner) da Região.",
         "tags": ["Region"],
         "parameters": [
           {
@@ -665,11 +724,31 @@
           {
             "name": "includeAllRegions",
             "in": "query",
-            "description": "Incluir todas as regiões dentro da distância, independentemente do owner (dono).",
+            "description": "Incluir todas as regiões dentro da distância, independentemente do proprietário (owner).",
             "required": false,
             "schema": {
               "type": "boolean",
               "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Número da página para paginação.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Número de itens por página.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
             }
           }
         ],
@@ -689,6 +768,15 @@
                       "items": {
                         "$ref": "#/components/schemas/Region"
                       }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
                     }
                   }
                 }
