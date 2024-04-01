@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import * as mongoose from 'mongoose'
+import mongoose from 'mongoose'
 import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses'
 import {
   pre,

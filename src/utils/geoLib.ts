@@ -1,4 +1,4 @@
-class GeoLib {
+class Geolib {
   private baseUrl: string
 
   constructor() {
@@ -6,10 +6,10 @@ class GeoLib {
   }
 
   public async getAddressFromCoordinates(
-    coordinates: [number, number] | { lat: number; lng: number }
+    coordinates: [number, number]
   ): Promise<string> {
-    const lat = Array.isArray(coordinates) ? coordinates[0] : coordinates.lat
-    const lon = Array.isArray(coordinates) ? coordinates[1] : coordinates.lng
+    const lat = coordinates[0]
+    const lon = coordinates[1]
 
     try {
       const response = await fetch(
@@ -38,4 +38,4 @@ class GeoLib {
   }
 }
 
-export default new GeoLib()
+export default new Geolib()
