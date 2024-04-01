@@ -1,73 +1,179 @@
-# OZmap Challenge: Construindo a Geolocalização do Futuro
+# Project OzMaptest
 
-Olá desenvolvedor(a)! Bem-vindo(a) ao Desafio Técnico do OZmap. Este é um projeto que simula um cenário real de nossa empresa, onde você irá desempenhar um papel crucial ao desenvolver uma API RESTful robusta para gerenciar usuários e localizações. Estamos muito animados para ver sua abordagem e solução!
+## Description
 
-## 🌍 **Visão Geral**
+This is a technical assessment project for OzMap. It includes functionalities to manage users and regions using Node.js, MongoDB, and Typescript.
 
-Em um mundo conectado e globalizado, a geolocalização se torna cada vez mais essencial. E aqui no OZmap, buscamos sempre otimizar e melhorar nossos sistemas. Assim, você encontrará um protótipo que precisa de sua experiência para ser corrigido, melhorado e levado ao próximo nível.
+## Installation
 
-## 🛠 **Especificações Técnicas**
+1. Clone this repository:
 
-- **Node.js**: Versão 20 ou superior.
-- **Banco de Dados**: Mongo 7+.
-- **ORM**: Mongoose / Typegoose.
-- **Linguagem**: Typescript.
-- **Formatação e Linting**: Eslint + prettier.
-- **Comunicação com MongoDB**: Deve ser feita via container.
+   ```
+   git clone git@github.com:ozmap/technical-assessment-int_dm.git
+   ```
 
-## 🔍 **Funcionalidades Esperadas**
+2. Install the dependencies:
 
-### Usuários
+   ```
+   cd technical-assessment-int_dm
+   npm install
+   ```
 
-- **CRUD** completo para usuários.
-- Cada usuário deve ter nome, email, endereço e coordenadas.
-- Na criação, o usuário pode fornecer endereço ou coordenadas. Haverá erro caso forneça ambos ou nenhum.
-- Uso de serviço de geolocalização para resolver endereço ↔ coordenadas.
-- Atualização de endereço ou coordenadas deve seguir a mesma lógica.
+## Configuration
 
-### Regiões
+1. Make sure Docker is installed.
+2. Create a `.env` file in the root of the project and add necessary environment variables, such as `MONGO_URI`.
 
-- **CRUD** completo para regiões.
-- Cada região tem um nome, coordenadas e um usuário que será o dono da região.
-- Listar regiões contendo um ponto específico.
-- Listar regiões a uma certa distância de um ponto, com opção de filtrar regiões não pertencentes ao usuário que fez a requisição.
+## Usage
 
-### Autenticação
+### Development
 
-- Autenticação não é necessária.
+To start the server in development mode:
 
-### Testes
+```
+npm run dev
+```
 
-- Unitários e de integração.
+### Running the Project with Docker Container
 
-## 🌟 **Diferenciais**
+To start the server in the container:
 
-- Documentação completa da API.
-- Interface para visualização de logs.
-- Exportação de relatórios (.csv).
-- Cobertura de código.
+```
+docker-compose up
+```
 
-## ⚖ **Critérios de Avaliação**
+### Testing
 
-1. Organização e clareza do código.
-2. Estruturação do projeto.
-3. Qualidade e eficiência do código.
-4. Cobertura e qualidade de testes.
-5. Pontos diferenciais citados acima.
-6. Tempo de entrega.
-7. Padronização e clareza das mensagens de erro.
-8. Organização dos commits.
-9. Implementação de logs.
-10. Adesão às boas práticas de API RESTful.
+To run the tests:
 
-## 🚀 **Entrega**
+```
+npm test
+```
 
-1. Faça um fork deste repositório.
-2. Crie uma branch com o padrão `seu-nome-sobrenome`.
-3. Ao finalizar, faça um pull request para a branch `main` deste repositório.
-4. Envie um email `rh@ozmap.com.br` informando que o teste foi concluído.
-5. Aguarde nosso feedback.
+## Features
 
----
+### Users
 
-Estamos ansiosos para ver sua implementação e criatividade em ação! Boa sorte e que a força do código esteja com você! 🚀
+- Each user has the following attributes:
+  - `name`: User's name.
+  - `email`: User's email address.
+  - `address`: User's address.
+  - `coordinates`: User's geographical coordinates.
+- When creating a user, it's possible to provide either the address OR the coordinates. Providing both or neither will result in an error response.
+- Coordinate resolution from an address and vice versa is performed using a geolocation service.
+- Updating the address or coordinates follows the same logic as creation.
+
+#### Routes
+
+- `GET /users`: Returns all registered users.
+- `GET /users/:id`: Returns a specific user based on the provided ID.
+- `POST /users`: Creates a new user with the data provided in the request body.
+- `PUT /users/:id`: Updates an existing user based on the provided ID, using the data provided in the request body.
+- `DELETE /users/:id`: Deletes an existing user based on the provided ID.
+
+### Regions
+
+- Each region has the following attributes:
+  - `name`: Region's name.
+  - `coordinates`: Geographical coordinates defining the area of the region.
+  - `user`: ID of the user who owns the region.
+- It's possible to list regions containing a specific point by providing the coordinates of that point.
+
+#### Routes
+
+- `GET /regions`: Returns all registered regions.
+- `GET /regions/:id`: Returns a specific region based on the provided ID.
+- `POST /regions`: Creates a new region with the data provided in the request body.
+- `PUT /regions/:id`: Updates an existing region based on the provided ID, using the data provided in the request body.
+- `DELETE /regions/:id`: Deletes an existing region based on the provided ID.
+- `GET /regions/contains`: Returns all regions containing a specific point, provided as a query parameter.
+
+## Request Examples
+
+Here are example curl requests:
+
+**Users**
+- `GET /users`
+```bash
+curl --location --request GET 'http://localhost:3003/users/'
+```
+- `GET /users/:id`
+```bash
+curl --location --request GET 'http://localhost:3003/users{userId}'
+```
+- `POST /users` with adress
+```bash
+curl --location --request POST 'http://localhost:3003/users' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "address": "231 wall street"
+}'
+```
+- `POST /users` with coordinates
+```bash
+curl --location --request POST 'http://localhost:3003/users' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "coordinates": [40.7128, -74.0060]
+}'
+```
+- `PUT /users/:id`
+```bash
+curl --location --request PUT 'http://localhost:3003/users/{userId}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "address": "wall street 221"
+}'
+```
+- `DELETE /users/:id`
+```bash
+curl --location --request DELETE 'http://localhost:3003/users/{userId}'
+```
+
+**Regions**
+- `GET /regions`
+```bash
+curl --location --request GET 'http://localhost:3003/regions'
+```
+- `GET /regions/:id`
+```bash
+curl --location --request GET 'http://localhost:3003/regions{regionId}'
+```
+- `POST /regions`
+```bash
+curl --location --request POST 'http://localhost:3003/regions' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "Central Park",
+  "coordinates": [[40.785091, -73.968285], [40.800207, -73.9543], [40.785091, -73.936285], [40.765191, -73.9543]],
+  "userId": ":id"
+}'
+```
+- `PUT /regions/:id`
+```bash
+curl --location --request PUT 'http://localhost:3003/regions/{regionId}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "Updated Region Name",
+  "coordinates": [[40.785091, -73.968285], [40.800207, -73.9543], [40.785091, -73.936285], [40.765191, -73.9543]]
+}'
+```
+- `DELETE /regions/:id`
+```bash
+curl --location --request DELETE 'http://localhost:3003/regions/{regionId}'
+```
+- `GET /regions/contains`
+```bash
+curl --location --request GET 'http://localhost:3003/regions/contains?point=40.785091,-73.968285' \
+--header 'Content-Type: application/json'
+```
+
+## Contribution
+
+Contributions are welcome! Feel free to open an issue or submit a pull request.
